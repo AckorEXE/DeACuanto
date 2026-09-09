@@ -54,4 +54,4 @@ vercel --prod
 O importando el repositorio directamente desde [vercel.com/new](https://vercel.com/new) — Vercel detecta el `vercel.json` y corre `npm run build` automáticamente.
 
 ---
-Desarrollado con 🌿 por **Ackor**
+Desarrollado con ❤️ por **AckorEXE**
