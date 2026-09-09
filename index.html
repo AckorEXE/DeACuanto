@@ -51,24 +51,19 @@
     background-size: 800px 100%;
     animation: shimmer 1.6s linear infinite;
   }
-  /* Destello que recorre los botones principales (Continuar, Calcular) de
-     vez en cuando, para que se sientan un poco más "vivos" sin ser molestos. */
-  @keyframes btnShine {
-    0%, 45% { left: -60%; }
-    65%, 100% { left: 130%; }
+  /* Pequeño "sacudón" cada pocos segundos en los botones principales, para
+     llamar la atención sin ser un movimiento constante/molesto. */
+  @keyframes btnShake {
+    0%, 90% { transform: translateX(0) rotate(0deg); }
+    91% { transform: translateX(-3px) rotate(-1.5deg); }
+    92% { transform: translateX(3px) rotate(1.5deg); }
+    93% { transform: translateX(-3px) rotate(-1.5deg); }
+    94% { transform: translateX(3px) rotate(1.5deg); }
+    95% { transform: translateX(-2px) rotate(-1deg); }
+    96%, 100% { transform: translateX(0) rotate(0deg); }
   }
-  .btn-shine::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -60%;
-    width: 45%;
-    height: 100%;
-    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.4), transparent);
-    transform: skewX(-18deg);
-    animation: btnShine 3.2s ease-in-out infinite;
-    pointer-events: none;
-  }
+  .btn-shake { animation: btnShake 3s ease-in-out infinite; }
+  .btn-shake:active { animation-play-state: paused; }
   .card-transition { transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.4); border-radius: 999px; }
@@ -369,7 +364,7 @@
   }
 
   function btnPrimary(label, id, extra) {
-    return `<button id="${id}" ${extra || ''} class="btn-shine relative overflow-hidden w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"><span class="relative z-10">${label}</span></button>`;
+    return `<button id="${id}" ${extra || ''} class="btn-shake w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">${label}</button>`;
   }
   function btnGhost(label, id, extra) {
     return `<button id="${id}" ${extra || ''} class="w-full rounded-xl border border-brand-light-primary dark:border-brand-dark-primary text-brand-light-primary dark:text-brand-dark-primary font-semibold py-3 hover:bg-brand-light-primary/5 dark:hover:bg-brand-dark-primary/10 transition-colors active:scale-[0.98]">${label}</button>`;
@@ -468,10 +463,6 @@
     const cards = state.expenses.map((exp, idx) => renderExpenseCard(exp, idx)).join('');
 
     container.innerHTML = `
-      <div class="fade-in mb-4 flex gap-2.5 rounded-2xl bg-brand-light-primary/8 dark:bg-brand-dark-primary/10 border border-brand-light-primary/20 dark:border-brand-dark-primary/20 p-3.5 text-xs leading-relaxed text-brand-light-text dark:text-brand-dark-text">
-        <span class="text-base leading-none">💡</span>
-        <p><strong>¿Quién pagó?</strong> vs <strong>¿entre quiénes se reparte?</strong> son cosas distintas: pagar no te excluye de tu propia parte. Desmárcate de "se reparte" solo si ese gasto fue exclusivamente para alguien más.</p>
-      </div>
       <div class="space-y-4">
         ${cards}
       </div>
@@ -922,7 +913,7 @@
 
       <div class="flex gap-2">
         <button id="results-back" class="w-1/2 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">← Editar gastos</button>
-        <button id="results-restart" class="w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 text-rose-500 font-semibold py-3 hover:bg-rose-500/5 transition-colors">Empezar de nuevo</button>
+        <button id="results-restart" class="btn-shake w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-500/5 text-rose-500 font-semibold py-3 hover:bg-rose-500/10 active:scale-[0.98] transition-colors">Empezar de nuevo</button>
       </div>
     `;
 
