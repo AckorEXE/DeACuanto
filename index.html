@@ -1,127 +1,240 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>¿De A Cuánto? — Divide gastos fácil</title>
-<meta name="description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🤑%3C/text%3E%3C/svg%3E" />
-<!-- Vista previa al compartir el link (WhatsApp, redes, etc.). og-image.png
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¿De A Cuánto? — Divide gastos fácil</title>
+  <meta name="description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🤑%3C/text%3E%3C/svg%3E" />
+  <!-- Vista previa al compartir el link (WhatsApp, redes, etc.). og-image.png
      vive junto a index.html y se sirve como archivo estático. -->
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://de-a-cuanto.vercel.app/" />
-<meta property="og:title" content="¿De A Cuánto? — Divide gastos fácil" />
-<meta property="og:description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
-<meta property="og:image" content="https://de-a-cuanto.vercel.app/og-image.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="¿De A Cuánto? — Divide gastos fácil" />
-<meta name="twitter:description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
-<meta name="twitter:image" content="https://de-a-cuanto.vercel.app/og-image.png" />
-<!-- Tailwind is precompiled to styles.css at build time (see build.sh) instead of
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://de-a-cuanto.vercel.app/" />
+  <meta property="og:title" content="¿De A Cuánto? — Divide gastos fácil" />
+  <meta property="og:description"
+    content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
+  <meta property="og:image" content="https://de-a-cuanto.vercel.app/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="¿De A Cuánto? — Divide gastos fácil" />
+  <meta name="twitter:description"
+    content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
+  <meta name="twitter:image" content="https://de-a-cuanto.vercel.app/og-image.png" />
+  <!-- Tailwind is precompiled to styles.css at build time (see build.sh) instead of
      loaded from the cdn.tailwindcss.com Play CDN. The Play CDN needs to reach an
      external script at runtime to work at all — if it's blocked by a firewall,
      an ad-blocker, or you're testing the file offline, the whole page renders
      unstyled. A static stylesheet has no such dependency: it always works,
      online or off, on Vercel or on your desktop. -->
-<link rel="stylesheet" href="styles.css" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Indie+Flower&display=swap" rel="stylesheet">
-<style>
-  /* Plain CSS keyframes — defined outside Tailwind's JIT config so they always
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Indie+Flower&display=swap"
+    rel="stylesheet">
+  <style>
+    /* Plain CSS keyframes — defined outside Tailwind's JIT config so they always
      ship in the stylesheet, even for classes (like .emoji-float) that Tailwind's
      scanner never sees referenced as an "animate-*" utility. */
-  @keyframes floatUp {
-    0% { transform: translateY(10vh) translateX(0) rotate(0deg); opacity: 0; }
-    10% { opacity: var(--emoji-opacity, 0.22); }
-    90% { opacity: var(--emoji-opacity, 0.22); }
-    100% { transform: translateY(-115vh) translateX(var(--drift, 40px)) rotate(var(--rot, 25deg)); opacity: 0; }
-  }
-  @keyframes fadeIn {
-    0% { opacity: 0; transform: translateY(6px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes shimmer {
-    0% { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
-  }
-  html, body { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; font-weight: 500; }
-  .font-hand { font-family: 'Indie Flower', cursive; font-weight: 400; }
-  .emoji-float {
-    position: absolute;
-    bottom: -10vh;
-    font-size: var(--size, 34px);
-    animation: floatUp var(--dur, 22s) linear infinite;
-    animation-delay: var(--delay, 0s);
-    filter: blur(0.2px);
-    user-select: none;
-    will-change: transform, opacity;
-  }
-  .shimmer-bg {
-    background: linear-gradient(90deg, rgba(148,163,184,0.15) 25%, rgba(148,163,184,0.35) 37%, rgba(148,163,184,0.15) 63%);
-    background-size: 800px 100%;
-    animation: shimmer 1.6s linear infinite;
-  }
-  /* Pequeño "sacudón" cada pocos segundos en los botones principales, para
+    @keyframes floatUp {
+      0% {
+        transform: translateY(10vh) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: var(--emoji-opacity, 0.22);
+      }
+
+      90% {
+        opacity: var(--emoji-opacity, 0.22);
+      }
+
+      100% {
+        transform: translateY(-115vh) translateX(var(--drift, 40px)) rotate(var(--rot, 25deg));
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -400px 0;
+      }
+
+      100% {
+        background-position: 400px 0;
+      }
+    }
+
+    html,
+    body {
+      font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+      font-weight: 500;
+    }
+
+    .font-hand {
+      font-family: 'Indie Flower', cursive;
+      font-weight: 400;
+    }
+
+    .emoji-float {
+      position: absolute;
+      bottom: -10vh;
+      font-size: var(--size, 34px);
+      animation: floatUp var(--dur, 22s) linear infinite;
+      animation-delay: var(--delay, 0s);
+      filter: blur(0.2px);
+      user-select: none;
+      will-change: transform, opacity;
+    }
+
+    .shimmer-bg {
+      background: linear-gradient(90deg, rgba(148, 163, 184, 0.15) 25%, rgba(148, 163, 184, 0.35) 37%, rgba(148, 163, 184, 0.15) 63%);
+      background-size: 800px 100%;
+      animation: shimmer 1.6s linear infinite;
+    }
+
+    /* Pequeño "sacudón" cada pocos segundos en los botones principales, para
      llamar la atención sin ser un movimiento constante/molesto. */
-  @keyframes btnShake {
-    0%, 90% { transform: translateX(0) rotate(0deg); }
-    91% { transform: translateX(-3px) rotate(-1.5deg); }
-    92% { transform: translateX(3px) rotate(1.5deg); }
-    93% { transform: translateX(-3px) rotate(-1.5deg); }
-    94% { transform: translateX(3px) rotate(1.5deg); }
-    95% { transform: translateX(-2px) rotate(-1deg); }
-    96%, 100% { transform: translateX(0) rotate(0deg); }
-  }
-  .btn-shake { animation: btnShake 3s ease-in-out infinite; }
-  .btn-shake:active { animation-play-state: paused; }
-  /* Destello que recorre el botón de compartir de vez en cuando. */
-  @keyframes btnShine {
-    0%, 45% { left: -60%; }
-    65%, 100% { left: 130%; }
-  }
-  .btn-shine::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -60%;
-    width: 45%;
-    height: 100%;
-    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.4), transparent);
-    transform: skewX(-18deg);
-    animation: btnShine 3.2s ease-in-out infinite;
-    pointer-events: none;
-  }
-  .card-transition { transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.4); border-radius: 999px; }
-  .step-enter, .fade-in { animation: fadeIn 0.4s ease-out both; }
-  /* Aviso pequeño abajo (p. ej. "copiado al portapapeles") que aparece y
+    @keyframes btnShake {
+
+      0%,
+      90% {
+        transform: translateX(0) rotate(0deg);
+      }
+
+      91% {
+        transform: translateX(-3px) rotate(-1.5deg);
+      }
+
+      92% {
+        transform: translateX(3px) rotate(1.5deg);
+      }
+
+      93% {
+        transform: translateX(-3px) rotate(-1.5deg);
+      }
+
+      94% {
+        transform: translateX(3px) rotate(1.5deg);
+      }
+
+      95% {
+        transform: translateX(-2px) rotate(-1deg);
+      }
+
+      96%,
+      100% {
+        transform: translateX(0) rotate(0deg);
+      }
+    }
+
+    .btn-shake {
+      animation: btnShake 3s ease-in-out infinite;
+    }
+
+    .btn-shake:active {
+      animation-play-state: paused;
+    }
+
+    /* Destello que recorre el botón de compartir de vez en cuando. */
+    @keyframes btnShine {
+
+      0%,
+      45% {
+        left: -60%;
+      }
+
+      65%,
+      100% {
+        left: 130%;
+      }
+    }
+
+    .btn-shine::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transform: skewX(-18deg);
+      animation: btnShine 3.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .card-transition {
+      transition: background-color .3s ease, border-color .3s ease, color .3s ease;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 999px;
+    }
+
+    .step-enter,
+    .fade-in {
+      animation: fadeIn 0.4s ease-out both;
+    }
+
+    /* Aviso pequeño abajo (p. ej. "copiado al portapapeles") que aparece y
      desaparece solo, sin interrumpir con un alert(). */
-  #toast {
-    position: fixed;
-    left: 50%;
-    bottom: 28px;
-    transform: translateX(-50%) translateY(12px);
-    opacity: 0;
-    transition: opacity .25s ease, transform .25s ease;
-    z-index: 50;
-    max-width: calc(100vw - 40px);
-    text-align: center;
-  }
-  #toast.toast-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { opacity: 1; }
-  /* iOS Safari hace zoom automático al enfocar un campo con texto menor a
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%) translateY(12px);
+      opacity: 0;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 50;
+      max-width: calc(100vw - 40px);
+      text-align: center;
+    }
+
+    #toast.toast-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      opacity: 1;
+    }
+
+    /* iOS Safari hace zoom automático al enfocar un campo con texto menor a
      16px. Forzamos 16px solo en los campos (no en el resto del texto, que
      sigue viéndose con su tamaño normal vía padding/line-height) para que
      tocar un input no dispare ese zoom. */
-  input, select, textarea { font-size: 16px !important; }
-</style>
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  </style>
 </head>
-<body class="bg-brand-light-bg dark:bg-brand-dark-bg text-brand-light-text dark:text-brand-dark-text card-transition min-h-screen overflow-x-hidden relative transition-colors duration-300">
+
+<body
+  class="bg-brand-light-bg dark:bg-brand-dark-bg text-brand-light-text dark:text-brand-dark-text card-transition min-h-screen overflow-x-hidden relative transition-colors duration-300">
 
   <!-- Floating emoji background -->
   <div id="emoji-bg" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
@@ -129,18 +242,24 @@
   <!-- Theme + currency toggles -->
   <div class="fixed top-4 right-4 z-30 flex items-center gap-2">
     <div class="relative">
-      <button id="currency-toggle" aria-label="Cambiar moneda" aria-haspopup="true" class="w-11 h-11 rounded-full grid place-items-center bg-white/70 dark:bg-white/5 backdrop-blur border border-brand-light-border dark:border-brand-dark-border shadow-sm hover:scale-105 active:scale-95 transition-transform text-lg">
+      <button id="currency-toggle" aria-label="Cambiar moneda" aria-haspopup="true"
+        class="w-11 h-11 rounded-full grid place-items-center bg-white/70 dark:bg-white/5 backdrop-blur border border-brand-light-border dark:border-brand-dark-border shadow-sm hover:scale-105 active:scale-95 transition-transform text-lg">
         <span id="currency-flag">🇲🇽</span>
       </button>
-      <div id="currency-menu" class="hidden absolute right-0 mt-2 w-52 max-h-80 overflow-y-auto rounded-2xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border shadow-lg p-1.5"></div>
+      <div id="currency-menu"
+        class="hidden absolute right-0 mt-2 w-52 max-h-80 overflow-y-auto rounded-2xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border shadow-lg p-1.5">
+      </div>
     </div>
-    <button id="theme-toggle" aria-label="Cambiar tema" class="w-11 h-11 rounded-full grid place-items-center bg-white/70 dark:bg-white/5 backdrop-blur border border-brand-light-border dark:border-brand-dark-border shadow-sm hover:scale-105 active:scale-95 transition-transform">
+    <button id="theme-toggle" aria-label="Cambiar tema"
+      class="w-11 h-11 rounded-full grid place-items-center bg-white/70 dark:bg-white/5 backdrop-blur border border-brand-light-border dark:border-brand-dark-border shadow-sm hover:scale-105 active:scale-95 transition-transform">
       <span id="theme-icon" class="text-lg">🌙</span>
     </button>
   </div>
 
   <!-- Aviso flotante (toast) -->
-  <div id="toast" class="hidden rounded-xl bg-brand-light-text dark:bg-brand-dark-card text-white dark:text-brand-dark-text text-sm font-medium px-4 py-2.5 shadow-lg"></div>
+  <div id="toast"
+    class="hidden rounded-xl bg-brand-light-text dark:bg-brand-dark-card text-white dark:text-brand-dark-text text-sm font-medium px-4 py-2.5 shadow-lg">
+  </div>
 
   <!-- Skeleton loader -->
   <div id="skeleton" class="relative z-10 min-h-screen flex flex-col items-center justify-center px-5">
@@ -149,7 +268,8 @@
         <span class="text-3xl">🤑</span>
         <div class="h-7 w-48 rounded-lg shimmer-bg"></div>
       </div>
-      <div class="rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 space-y-4 shadow-sm">
+      <div
+        class="rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 space-y-4 shadow-sm">
         <div class="h-5 w-2/3 rounded shimmer-bg"></div>
         <div class="h-4 w-1/2 rounded shimmer-bg"></div>
         <div class="h-11 w-full rounded-xl shimmer-bg"></div>
@@ -165,9 +285,11 @@
       <!-- Header -->
       <header class="flex items-center justify-center gap-2 mb-2 fade-in">
         <span class="text-3xl">🤑</span>
-        <h1 class="font-hand text-4xl tracking-tight text-brand-light-primary dark:text-brand-dark-primary">¿De A Cuánto?</h1>
+        <h1 class="font-hand text-4xl tracking-tight text-brand-light-primary dark:text-brand-dark-primary">¿De A
+          Cuánto?</h1>
       </header>
-      <p class="text-center text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-6 fade-in">Dividan los gastos de su salida sin dolores de cabeza</p>
+      <p class="text-center text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-6 fade-in">Dividan los
+        gastos de su salida sin dolores de cabeza</p>
 
       <!-- Progress -->
       <div id="progress" class="flex items-center justify-center gap-2 mb-6"></div>
@@ -178,289 +300,289 @@
     </div>
   </main>
 
-<script>
-(function () {
-  "use strict";
+  <script>
+    (function () {
+      "use strict";
 
-  /* ---------------- Theme ---------------- */
-  // El tema sigue automáticamente al del dispositivo en cada visita nueva.
-  // Si lo alternas a mano con el botón, esa elección se recuerda solo durante
-  // esta pestaña (sessionStorage) — la próxima vez que abras la app, vuelve a
-  // partir de lo que diga tu sistema, no se queda "pegado" para siempre.
-  const root = document.documentElement;
-  function applyTheme(mode) {
-    if (mode === 'dark') { root.classList.add('dark'); document.getElementById('theme-icon').textContent = '☀️'; }
-    else { root.classList.remove('dark'); document.getElementById('theme-icon').textContent = '🌙'; }
-  }
-  function getInitialTheme() {
-    try {
-      const saved = sessionStorage.getItem('deacuanto:theme');
-      if (saved === 'dark' || saved === 'light') return saved;
-    } catch (e) {}
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  let theme = getInitialTheme();
-  applyTheme(theme);
-  document.getElementById('theme-toggle').addEventListener('click', () => {
-    theme = theme === 'dark' ? 'light' : 'dark';
-    applyTheme(theme);
-    try { sessionStorage.setItem('deacuanto:theme', theme); } catch (e) {}
-  });
-  // El botón manual es solo un atajo opcional: si cambias el tema del
-  // dispositivo (aunque ya hubieras tocado el botón antes), la app se
-  // actualiza sola y en tiempo real, sin depender de él. Además de escuchar
-  // el evento "change" (que en iOS a veces no dispara si Safari estaba en
-  // segundo plano cuando cambiaste el tema), se vuelve a revisar cada vez
-  // que la pestaña vuelve a estar visible, por si el cambio ocurrió mientras
-  // no se veía la página.
-  function currentSystemTheme() {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  let lastKnownSystemTheme = currentSystemTheme();
-  function syncToSystemTheme(systemTheme) {
-    if (systemTheme === lastKnownSystemTheme) return; // no hubo un cambio real
-    lastKnownSystemTheme = systemTheme;
-    theme = systemTheme;
-    applyTheme(theme);
-    try { sessionStorage.removeItem('deacuanto:theme'); } catch (e) {}
-  }
-  try {
-    const mql = window.matchMedia('(prefers-color-scheme: dark)');
-    const onSystemChange = (e) => syncToSystemTheme(e.matches ? 'dark' : 'light');
-    if (mql.addEventListener) mql.addEventListener('change', onSystemChange);
-    else if (mql.addListener) mql.addListener(onSystemChange); // Safari viejo
-  } catch (e) {}
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') syncToSystemTheme(currentSystemTheme());
-  });
-  window.addEventListener('pageshow', () => syncToSystemTheme(currentSystemTheme()));
+      /* ---------------- Theme ---------------- */
+      // El tema sigue automáticamente al del dispositivo en cada visita nueva.
+      // Si lo alternas a mano con el botón, esa elección se recuerda solo durante
+      // esta pestaña (sessionStorage) — la próxima vez que abras la app, vuelve a
+      // partir de lo que diga tu sistema, no se queda "pegado" para siempre.
+      const root = document.documentElement;
+      function applyTheme(mode) {
+        if (mode === 'dark') { root.classList.add('dark'); document.getElementById('theme-icon').textContent = '☀️'; }
+        else { root.classList.remove('dark'); document.getElementById('theme-icon').textContent = '🌙'; }
+      }
+      function getInitialTheme() {
+        try {
+          const saved = sessionStorage.getItem('deacuanto:theme');
+          if (saved === 'dark' || saved === 'light') return saved;
+        } catch (e) { }
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      let theme = getInitialTheme();
+      applyTheme(theme);
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        theme = theme === 'dark' ? 'light' : 'dark';
+        applyTheme(theme);
+        try { sessionStorage.setItem('deacuanto:theme', theme); } catch (e) { }
+      });
+      // El botón manual es solo un atajo opcional: si cambias el tema del
+      // dispositivo (aunque ya hubieras tocado el botón antes), la app se
+      // actualiza sola y en tiempo real, sin depender de él. Además de escuchar
+      // el evento "change" (que en iOS a veces no dispara si Safari estaba en
+      // segundo plano cuando cambiaste el tema), se vuelve a revisar cada vez
+      // que la pestaña vuelve a estar visible, por si el cambio ocurrió mientras
+      // no se veía la página.
+      function currentSystemTheme() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      let lastKnownSystemTheme = currentSystemTheme();
+      function syncToSystemTheme(systemTheme) {
+        if (systemTheme === lastKnownSystemTheme) return; // no hubo un cambio real
+        lastKnownSystemTheme = systemTheme;
+        theme = systemTheme;
+        applyTheme(theme);
+        try { sessionStorage.removeItem('deacuanto:theme'); } catch (e) { }
+      }
+      try {
+        const mql = window.matchMedia('(prefers-color-scheme: dark)');
+        const onSystemChange = (e) => syncToSystemTheme(e.matches ? 'dark' : 'light');
+        if (mql.addEventListener) mql.addEventListener('change', onSystemChange);
+        else if (mql.addListener) mql.addListener(onSystemChange); // Safari viejo
+      } catch (e) { }
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') syncToSystemTheme(currentSystemTheme());
+      });
+      window.addEventListener('pageshow', () => syncToSystemTheme(currentSystemTheme()));
 
-  /* ---------------- Moneda ---------------- */
-  const CURRENCIES = [
-    { code: 'MXN', locale: 'es-MX', flag: '🇲🇽', name: 'Peso mexicano' },
-    { code: 'USD', locale: 'en-US', flag: '🇺🇸', name: 'Dólar estadounidense' },
-    { code: 'EUR', locale: 'de-DE', flag: '🇪🇺', name: 'Euro' },
-    { code: 'GBP', locale: 'en-GB', flag: '🇬🇧', name: 'Libra esterlina' },
-    { code: 'JPY', locale: 'ja-JP', flag: '🇯🇵', name: 'Yen japonés' },
-    { code: 'CAD', locale: 'en-CA', flag: '🇨🇦', name: 'Dólar canadiense' },
-    { code: 'BRL', locale: 'pt-BR', flag: '🇧🇷', name: 'Real brasileño' },
-    { code: 'ARS', locale: 'es-AR', flag: '🇦🇷', name: 'Peso argentino' },
-    { code: 'COP', locale: 'es-CO', flag: '🇨🇴', name: 'Peso colombiano' },
-    { code: 'CLP', locale: 'es-CL', flag: '🇨🇱', name: 'Peso chileno' },
-  ];
-  function getInitialCurrency() {
-    try {
-      const saved = localStorage.getItem('deacuanto:currency');
-      if (CURRENCIES.some(c => c.code === saved)) return saved;
-    } catch (e) {}
-    return 'MXN';
-  }
-  let currency = getInitialCurrency();
-  function getCurrency() { return CURRENCIES.find(c => c.code === currency) || CURRENCIES[0]; }
-  function renderCurrencyMenu() {
-    const menu = document.getElementById('currency-menu');
-    menu.innerHTML = CURRENCIES.map(c => `
+      /* ---------------- Moneda ---------------- */
+      const CURRENCIES = [
+        { code: 'MXN', locale: 'es-MX', flag: '🇲🇽', name: 'Peso mexicano' },
+        { code: 'USD', locale: 'en-US', flag: '🇺🇸', name: 'Dólar estadounidense' },
+        { code: 'EUR', locale: 'de-DE', flag: '🇪🇺', name: 'Euro' },
+        { code: 'GBP', locale: 'en-GB', flag: '🇬🇧', name: 'Libra esterlina' },
+        { code: 'JPY', locale: 'ja-JP', flag: '🇯🇵', name: 'Yen japonés' },
+        { code: 'CAD', locale: 'en-CA', flag: '🇨🇦', name: 'Dólar canadiense' },
+        { code: 'BRL', locale: 'pt-BR', flag: '🇧🇷', name: 'Real brasileño' },
+        { code: 'ARS', locale: 'es-AR', flag: '🇦🇷', name: 'Peso argentino' },
+        { code: 'COP', locale: 'es-CO', flag: '🇨🇴', name: 'Peso colombiano' },
+        { code: 'CLP', locale: 'es-CL', flag: '🇨🇱', name: 'Peso chileno' },
+      ];
+      function getInitialCurrency() {
+        try {
+          const saved = localStorage.getItem('deacuanto:currency');
+          if (CURRENCIES.some(c => c.code === saved)) return saved;
+        } catch (e) { }
+        return 'MXN';
+      }
+      let currency = getInitialCurrency();
+      function getCurrency() { return CURRENCIES.find(c => c.code === currency) || CURRENCIES[0]; }
+      function renderCurrencyMenu() {
+        const menu = document.getElementById('currency-menu');
+        menu.innerHTML = CURRENCIES.map(c => `
       <button data-currency="${c.code}" class="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-sm text-left hover:bg-black/5 dark:hover:bg-white/10 transition-colors ${c.code === currency ? 'font-bold text-brand-light-primary dark:text-brand-dark-primary' : ''}">
         <span class="text-base">${c.flag}</span><span class="flex-1 min-w-0 truncate">${c.name}</span><span class="text-xs opacity-60">${c.code}</span>
       </button>`).join('');
-    menu.querySelectorAll('[data-currency]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        currency = btn.getAttribute('data-currency');
-        try { localStorage.setItem('deacuanto:currency', currency); } catch (e) {}
-        document.getElementById('currency-flag').textContent = getCurrency().flag;
-        document.getElementById('currency-menu').classList.add('hidden');
-        renderCurrencyMenu();
-        render();
-      });
-    });
-  }
-  document.getElementById('currency-flag').textContent = getCurrency().flag;
-  renderCurrencyMenu();
-  document.getElementById('currency-toggle').addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.getElementById('currency-menu').classList.toggle('hidden');
-  });
-  document.addEventListener('click', () => document.getElementById('currency-menu').classList.add('hidden'));
-  document.getElementById('currency-menu').addEventListener('click', (e) => e.stopPropagation());
-
-  /* ---------------- Floating emojis ---------------- */
-  const EMOJIS = ['🤑', '🤔', '😢', '💴', '💵', '💶', '💷'];
-  const emojiBg = document.getElementById('emoji-bg');
-  function spawnEmoji() {
-    const el = document.createElement('span');
-    el.className = 'emoji-float';
-    el.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-    const size = 28 + Math.random() * 36;
-    const left = Math.random() * 100;
-    const dur = 14 + Math.random() * 12;
-    const delay = -Math.random() * dur;
-    const drift = (Math.random() * 120 - 60).toFixed(0) + 'px';
-    const rot = (Math.random() * 60 - 30).toFixed(0) + 'deg';
-    const opacity = (0.16 + Math.random() * 0.20).toFixed(2);
-    el.style.left = left + 'vw';
-    el.style.setProperty('--size', size + 'px');
-    el.style.setProperty('--dur', dur + 's');
-    el.style.setProperty('--delay', delay + 's');
-    el.style.setProperty('--drift', drift);
-    el.style.setProperty('--rot', rot);
-    el.style.setProperty('--emoji-opacity', opacity);
-    emojiBg.appendChild(el);
-  }
-  const EMOJI_COUNT = window.innerWidth < 640 ? 26 : 42; // ~30% más que antes
-  for (let i = 0; i < EMOJI_COUNT; i++) spawnEmoji();
-
-  /* ---------------- State ---------------- */
-  // v2: el formato de gastos cambió de "paidBy" (un solo pagador) a "payers"
-  // (varios pagadores). Usar una clave nueva evita que datos guardados con el
-  // formato viejo (de una sesión de prueba anterior) rompan el render de hoy;
-  // normalizeExpense() de abajo además migra cualquier dato viejo que aparezca.
-  const STORAGE_KEY = 'deacuanto:state:v2';
-  const LEGACY_KEYS = ['deacuanto:state:v1'];
-  function defaultState() {
-    return {
-      step: 0, // 0 = personas, 1 = gastos, 2 = resultados
-      people: [], // {id, name}
-      expenses: [], // {id, name, amount, payers:[{personId, amount}], participants:[ids]}
-    };
-  }
-  let fallbackIdCounter = Date.now();
-  function fallbackId() { return 'id' + (fallbackIdCounter++); }
-  // Repara/normaliza un gasto para que siempre tenga la forma actual, sin
-  // importar de qué versión de la app venga el dato guardado.
-  function normalizeExpense(e, people) {
-    if (!e || typeof e !== 'object') e = {};
-    const allIds = people.map(p => p.id);
-    const participants = Array.isArray(e.participants) && e.participants.length
-      ? e.participants.filter(id => allIds.includes(id))
-      : allIds.slice();
-    let payers = Array.isArray(e.payers) ? e.payers.filter(p => p && allIds.includes(p.personId)) : [];
-    if (payers.length === 0 && e.paidBy && allIds.includes(e.paidBy)) {
-      // Formato viejo: un solo campo "paidBy" en vez de "payers".
-      payers = [{ personId: e.paidBy, amount: e.amount != null ? String(e.amount) : '' }];
-    }
-    return {
-      id: typeof e.id === 'string' ? e.id : fallbackId(),
-      name: typeof e.name === 'string' ? e.name : '',
-      amount: (typeof e.amount === 'string' || typeof e.amount === 'number') ? String(e.amount) : '',
-      payers,
-      participants,
-    };
-  }
-  function normalizeState(parsed) {
-    const people = Array.isArray(parsed.people)
-      ? parsed.people.filter(p => p && typeof p === 'object').map(p => ({
-          id: typeof p.id === 'string' ? p.id : fallbackId(),
-          name: typeof p.name === 'string' ? p.name : '',
-        }))
-      : [];
-    const expenses = Array.isArray(parsed.expenses) ? parsed.expenses.map(e => normalizeExpense(e, people)) : [];
-    const step = [0, 1, 2].includes(parsed.step) ? parsed.step : 0;
-    return { step, people, expenses };
-  }
-  function loadState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed === 'object') return normalizeState(parsed);
+        menu.querySelectorAll('[data-currency]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            currency = btn.getAttribute('data-currency');
+            try { localStorage.setItem('deacuanto:currency', currency); } catch (e) { }
+            document.getElementById('currency-flag').textContent = getCurrency().flag;
+            document.getElementById('currency-menu').classList.add('hidden');
+            renderCurrencyMenu();
+            render();
+          });
+        });
       }
-      // Sin datos en la clave actual: si hay datos de una versión anterior, los migramos.
-      for (const legacyKey of LEGACY_KEYS) {
-        const legacyRaw = localStorage.getItem(legacyKey);
-        if (legacyRaw) {
-          const legacyParsed = JSON.parse(legacyRaw);
-          if (legacyParsed && typeof legacyParsed === 'object') {
-            const migrated = normalizeState(legacyParsed);
-            try { localStorage.removeItem(legacyKey); } catch (e2) {}
-            return migrated;
+      document.getElementById('currency-flag').textContent = getCurrency().flag;
+      renderCurrencyMenu();
+      document.getElementById('currency-toggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('currency-menu').classList.toggle('hidden');
+      });
+      document.addEventListener('click', () => document.getElementById('currency-menu').classList.add('hidden'));
+      document.getElementById('currency-menu').addEventListener('click', (e) => e.stopPropagation());
+
+      /* ---------------- Floating emojis ---------------- */
+      const EMOJIS = ['🤑', '🤔', '😢', '💴', '💵', '💶', '💷'];
+      const emojiBg = document.getElementById('emoji-bg');
+      function spawnEmoji() {
+        const el = document.createElement('span');
+        el.className = 'emoji-float';
+        el.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+        const size = 28 + Math.random() * 36;
+        const left = Math.random() * 100;
+        const dur = 14 + Math.random() * 12;
+        const delay = -Math.random() * dur;
+        const drift = (Math.random() * 120 - 60).toFixed(0) + 'px';
+        const rot = (Math.random() * 60 - 30).toFixed(0) + 'deg';
+        const opacity = (0.16 + Math.random() * 0.20).toFixed(2);
+        el.style.left = left + 'vw';
+        el.style.setProperty('--size', size + 'px');
+        el.style.setProperty('--dur', dur + 's');
+        el.style.setProperty('--delay', delay + 's');
+        el.style.setProperty('--drift', drift);
+        el.style.setProperty('--rot', rot);
+        el.style.setProperty('--emoji-opacity', opacity);
+        emojiBg.appendChild(el);
+      }
+      const EMOJI_COUNT = window.innerWidth < 640 ? 26 : 42; // ~30% más que antes
+      for (let i = 0; i < EMOJI_COUNT; i++) spawnEmoji();
+
+      /* ---------------- State ---------------- */
+      // v2: el formato de gastos cambió de "paidBy" (un solo pagador) a "payers"
+      // (varios pagadores). Usar una clave nueva evita que datos guardados con el
+      // formato viejo (de una sesión de prueba anterior) rompan el render de hoy;
+      // normalizeExpense() de abajo además migra cualquier dato viejo que aparezca.
+      const STORAGE_KEY = 'deacuanto:state:v2';
+      const LEGACY_KEYS = ['deacuanto:state:v1'];
+      function defaultState() {
+        return {
+          step: 0, // 0 = personas, 1 = gastos, 2 = resultados
+          people: [], // {id, name}
+          expenses: [], // {id, name, amount, payers:[{personId, amount}], participants:[ids]}
+        };
+      }
+      let fallbackIdCounter = Date.now();
+      function fallbackId() { return 'id' + (fallbackIdCounter++); }
+      // Repara/normaliza un gasto para que siempre tenga la forma actual, sin
+      // importar de qué versión de la app venga el dato guardado.
+      function normalizeExpense(e, people) {
+        if (!e || typeof e !== 'object') e = {};
+        const allIds = people.map(p => p.id);
+        const participants = Array.isArray(e.participants) && e.participants.length
+          ? e.participants.filter(id => allIds.includes(id))
+          : allIds.slice();
+        let payers = Array.isArray(e.payers) ? e.payers.filter(p => p && allIds.includes(p.personId)) : [];
+        if (payers.length === 0 && e.paidBy && allIds.includes(e.paidBy)) {
+          // Formato viejo: un solo campo "paidBy" en vez de "payers".
+          payers = [{ personId: e.paidBy, amount: e.amount != null ? String(e.amount) : '' }];
+        }
+        return {
+          id: typeof e.id === 'string' ? e.id : fallbackId(),
+          name: typeof e.name === 'string' ? e.name : '',
+          amount: (typeof e.amount === 'string' || typeof e.amount === 'number') ? String(e.amount) : '',
+          payers,
+          participants,
+        };
+      }
+      function normalizeState(parsed) {
+        const people = Array.isArray(parsed.people)
+          ? parsed.people.filter(p => p && typeof p === 'object').map(p => ({
+            id: typeof p.id === 'string' ? p.id : fallbackId(),
+            name: typeof p.name === 'string' ? p.name : '',
+          }))
+          : [];
+        const expenses = Array.isArray(parsed.expenses) ? parsed.expenses.map(e => normalizeExpense(e, people)) : [];
+        const step = [0, 1, 2].includes(parsed.step) ? parsed.step : 0;
+        return { step, people, expenses };
+      }
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') return normalizeState(parsed);
           }
+          // Sin datos en la clave actual: si hay datos de una versión anterior, los migramos.
+          for (const legacyKey of LEGACY_KEYS) {
+            const legacyRaw = localStorage.getItem(legacyKey);
+            if (legacyRaw) {
+              const legacyParsed = JSON.parse(legacyRaw);
+              if (legacyParsed && typeof legacyParsed === 'object') {
+                const migrated = normalizeState(legacyParsed);
+                try { localStorage.removeItem(legacyKey); } catch (e2) { }
+                return migrated;
+              }
+            }
+          }
+        } catch (e) { }
+        return defaultState();
+      }
+      function saveState() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { }
+      }
+      let state = loadState();
+      saveState(); // persiste de inmediato cualquier dato migrado de una versión anterior
+      let uidCounter = Date.now();
+      function uid() { return 'id' + (uidCounter++); }
+      // Gastos ya llenados que están minimizados a solo "Gasto N — nombre" para
+      // no llenar la pantalla cuando hay varios. Es solo un detalle visual (no
+      // se guarda), así que siempre arranca con todo expandido en una visita
+      // nueva o si recargas la página.
+      let collapsedExpenseIds = new Set();
+
+      /* ---------------- Helpers ---------------- */
+      // Formatea un monto para un <input>: sin decimales si es un número entero
+      // (220, no 220.00), y con hasta 2 decimales solo cuando de verdad los tiene.
+      function formatAmountInput(n) {
+        const v = Math.round((n + Number.EPSILON) * 100) / 100;
+        return String(v);
+      }
+      function fmt(n) {
+        const v = Math.round((n + Number.EPSILON) * 100) / 100;
+        const cur = getCurrency();
+        try {
+          return v.toLocaleString(cur.locale, { style: 'currency', currency: cur.code, minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        } catch (e) {
+          return cur.code + ' ' + formatAmountInput(v);
         }
       }
-    } catch (e) {}
-    return defaultState();
-  }
-  function saveState() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-  }
-  let state = loadState();
-  saveState(); // persiste de inmediato cualquier dato migrado de una versión anterior
-  let uidCounter = Date.now();
-  function uid() { return 'id' + (uidCounter++); }
-  // Gastos ya llenados que están minimizados a solo "Gasto N — nombre" para
-  // no llenar la pantalla cuando hay varios. Es solo un detalle visual (no
-  // se guarda), así que siempre arranca con todo expandido en una visita
-  // nueva o si recargas la página.
-  let collapsedExpenseIds = new Set();
+      function personName(id) {
+        const p = state.people.find(p => p.id === id);
+        return p ? p.name : '???';
+      }
+      // Normaliza a "tipo oración": la primera letra en mayúscula, el resto tal
+      // cual lo escribió la persona (así "pitt" -> "Pitt" pero no se toca algo
+      // como "McDonald's" si alguien lo escribe con esa mayúscula a propósito).
+      function sentenceCase(str) {
+        const trimmed = String(str || '').trim();
+        if (!trimmed) return trimmed;
+        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+      }
 
-  /* ---------------- Helpers ---------------- */
-  // Formatea un monto para un <input>: sin decimales si es un número entero
-  // (220, no 220.00), y con hasta 2 decimales solo cuando de verdad los tiene.
-  function formatAmountInput(n) {
-    const v = Math.round((n + Number.EPSILON) * 100) / 100;
-    return String(v);
-  }
-  function fmt(n) {
-    const v = Math.round((n + Number.EPSILON) * 100) / 100;
-    const cur = getCurrency();
-    try {
-      return v.toLocaleString(cur.locale, { style: 'currency', currency: cur.code, minimumFractionDigits: 0, maximumFractionDigits: 2 });
-    } catch (e) {
-      return cur.code + ' ' + formatAmountInput(v);
-    }
-  }
-  function personName(id) {
-    const p = state.people.find(p => p.id === id);
-    return p ? p.name : '???';
-  }
-  // Normaliza a "tipo oración": la primera letra en mayúscula, el resto tal
-  // cual lo escribió la persona (así "pitt" -> "Pitt" pero no se toca algo
-  // como "McDonald's" si alguien lo escribe con esa mayúscula a propósito).
-  function sentenceCase(str) {
-    const trimmed = String(str || '').trim();
-    if (!trimmed) return trimmed;
-    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
-  }
-
-  /* ---------------- Progress dots ---------------- */
-  function renderProgress() {
-    const labels = ['Personas', 'Gastos', 'Resultado'];
-    const el = document.getElementById('progress');
-    el.innerHTML = labels.map((label, i) => {
-      const active = i === state.step;
-      const done = i < state.step;
-      const dot = done
-        ? `<span class="w-6 h-6 rounded-full grid place-items-center bg-brand-light-primary dark:bg-brand-dark-primary text-white text-xs font-bold">✓</span>`
-        : `<span class="w-6 h-6 rounded-full grid place-items-center text-xs font-bold ${active ? 'bg-brand-light-primary dark:bg-brand-dark-primary text-white' : 'bg-black/5 dark:bg-white/10 text-brand-light-subtext dark:text-brand-dark-subtext'}">${i + 1}</span>`;
-      return `<div class="flex items-center gap-1.5">
+      /* ---------------- Progress dots ---------------- */
+      function renderProgress() {
+        const labels = ['Personas', 'Gastos', 'Resultado'];
+        const el = document.getElementById('progress');
+        el.innerHTML = labels.map((label, i) => {
+          const active = i === state.step;
+          const done = i < state.step;
+          const dot = done
+            ? `<span class="w-6 h-6 rounded-full grid place-items-center bg-brand-light-primary dark:bg-brand-dark-primary text-white text-xs font-bold">✓</span>`
+            : `<span class="w-6 h-6 rounded-full grid place-items-center text-xs font-bold ${active ? 'bg-brand-light-primary dark:bg-brand-dark-primary text-white' : 'bg-black/5 dark:bg-white/10 text-brand-light-subtext dark:text-brand-dark-subtext'}">${i + 1}</span>`;
+          return `<div class="flex items-center gap-1.5">
         ${dot}
         <span class="text-xs font-medium ${active ? 'text-brand-light-text dark:text-brand-dark-text' : 'text-brand-light-subtext dark:text-brand-dark-subtext'} hidden sm:inline">${label}</span>
         ${i < labels.length - 1 ? '<span class="w-6 h-px bg-brand-light-border dark:bg-brand-dark-border mx-1"></span>' : ''}
       </div>`;
-    }).join('');
-  }
+        }).join('');
+      }
 
-  /* ---------------- Card wrapper ---------------- */
-  function card(innerHtml, extraClass) {
-    return `<div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm ${extraClass || ''}">${innerHtml}</div>`;
-  }
+      /* ---------------- Card wrapper ---------------- */
+      function card(innerHtml, extraClass) {
+        return `<div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm ${extraClass || ''}">${innerHtml}</div>`;
+      }
 
-  // effect: 'shake' (default, botones de avanzar de paso) o 'shine' (el de
-  // compartir, que no se mueve — solo un destello sutil).
-  function btnPrimary(label, id, extra, effect) {
-    const isShine = effect === 'shine';
-    const effectClass = isShine ? 'btn-shine relative overflow-hidden' : 'btn-shake';
-    const inner = isShine ? `<span class="relative z-10">${label}</span>` : label;
-    return `<button id="${id}" ${extra || ''} class="${effectClass} w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">${inner}</button>`;
-  }
-  function btnGhost(label, id, extra) {
-    return `<button id="${id}" ${extra || ''} class="w-full rounded-xl border border-brand-light-primary dark:border-brand-dark-primary text-brand-light-primary dark:text-brand-dark-primary font-semibold py-3 hover:bg-brand-light-primary/5 dark:hover:bg-brand-dark-primary/10 transition-colors active:scale-[0.98]">${label}</button>`;
-  }
+      // effect: 'shake' (default, botones de avanzar de paso) o 'shine' (el de
+      // compartir, que no se mueve — solo un destello sutil).
+      function btnPrimary(label, id, extra, effect) {
+        const isShine = effect === 'shine';
+        const effectClass = isShine ? 'btn-shine relative overflow-hidden' : 'btn-shake';
+        const inner = isShine ? `<span class="relative z-10">${label}</span>` : label;
+        return `<button id="${id}" ${extra || ''} class="${effectClass} w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">${inner}</button>`;
+      }
+      function btnGhost(label, id, extra) {
+        return `<button id="${id}" ${extra || ''} class="w-full rounded-xl border border-brand-light-primary dark:border-brand-dark-primary text-brand-light-primary dark:text-brand-dark-primary font-semibold py-3 hover:bg-brand-light-primary/5 dark:hover:bg-brand-dark-primary/10 transition-colors active:scale-[0.98]">${label}</button>`;
+      }
 
-  /* ---------------- Step 0: Personas ---------------- */
-  function renderStepPeople() {
-    const container = document.getElementById('step-content');
-    const count = state.people.length;
-    const rows = state.people.map((p, i) => `
+      /* ---------------- Step 0: Personas ---------------- */
+      function renderStepPeople() {
+        const container = document.getElementById('step-content');
+        const count = state.people.length;
+        const rows = state.people.map((p, i) => `
       <div class="flex items-center gap-2">
         <span class="w-7 h-7 shrink-0 rounded-full bg-brand-light-primary/10 dark:bg-brand-dark-primary/15 text-brand-light-primary dark:text-brand-dark-primary grid place-items-center text-xs font-bold">${i + 1}</span>
         <input data-person-id="${p.id}" type="text" maxlength="16" value="${escapeHtml(p.name)}" placeholder="Nombre de la persona ${i + 1}"
@@ -469,7 +591,7 @@
       </div>
     `).join('');
 
-    container.innerHTML = card(`
+        container.innerHTML = card(`
       <h2 class="text-lg font-bold mb-1">¿Cuántas personas son?</h2>
       <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">Agrega a todos los que participaron en la salida.</p>
       <div id="people-list" class="space-y-2.5 mb-3">${rows}</div>
@@ -478,100 +600,100 @@
       ${btnPrimary('Continuar', 'people-next')}
     `);
 
-    document.getElementById('add-person').addEventListener('click', () => {
-      state.people.push({ id: uid(), name: '' });
-      saveState();
-      renderStepPeople();
-      const inputs = document.querySelectorAll('.person-input');
-      if (inputs.length) inputs[inputs.length - 1].focus();
-    });
-
-    container.querySelectorAll('[data-remove-person]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const pid = btn.getAttribute('data-remove-person');
-        state.people = state.people.filter(p => p.id !== pid);
-        state.expenses.forEach(e => {
-          e.payers = e.payers.filter(pay => pay.personId !== pid);
-          e.participants = e.participants.filter(id => id !== pid);
-          // Si con esta persona fuera se quedó un solo pagador, su monto
-          // vuelve a ser el total (igual que en cualquier otro momento con
-          // un solo pagador); si quedan varios, se recalcula el que estaba
-          // marcado como "el resto" para que no se quede con un número viejo.
-          if (e.payers.length === 1) {
-            e.payers[0].amount = e.amount;
-            e.payers[0].auto = false;
-          } else if (e.payers.length > 1) {
-            recalcAutoPayer(e);
-          }
-        });
-        saveState();
-        renderStepPeople();
-      });
-    });
-
-    container.querySelectorAll('.person-input').forEach(inp => {
-      inp.addEventListener('input', () => {
-        const pid = inp.getAttribute('data-person-id');
-        const p = state.people.find(p => p.id === pid);
-        // maxlength ya lo limita al escribir, pero por si acaso (pegar texto
-        // largo en navegadores que no lo respetan) también se recorta aquí.
-        if (inp.value.length > 16) inp.value = inp.value.slice(0, 16);
-        if (p) p.name = inp.value;
-        saveState();
-      });
-      // La mayúscula inicial se aplica al salir del campo (no mientras se
-      // escribe) para no mover el cursor a media palabra.
-      inp.addEventListener('blur', () => {
-        const pid = inp.getAttribute('data-person-id');
-        const p = state.people.find(p => p.id === pid);
-        if (!p) return;
-        const normalized = sentenceCase(p.name);
-        if (normalized !== p.name) {
-          p.name = normalized;
-          inp.value = normalized;
+        document.getElementById('add-person').addEventListener('click', () => {
+          state.people.push({ id: uid(), name: '' });
           saveState();
+          renderStepPeople();
+          const inputs = document.querySelectorAll('.person-input');
+          if (inputs.length) inputs[inputs.length - 1].focus();
+        });
+
+        container.querySelectorAll('[data-remove-person]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-remove-person');
+            state.people = state.people.filter(p => p.id !== pid);
+            state.expenses.forEach(e => {
+              e.payers = e.payers.filter(pay => pay.personId !== pid);
+              e.participants = e.participants.filter(id => id !== pid);
+              // Si con esta persona fuera se quedó un solo pagador, su monto
+              // vuelve a ser el total (igual que en cualquier otro momento con
+              // un solo pagador); si quedan varios, se recalcula el que estaba
+              // marcado como "el resto" para que no se quede con un número viejo.
+              if (e.payers.length === 1) {
+                e.payers[0].amount = e.amount;
+                e.payers[0].auto = false;
+              } else if (e.payers.length > 1) {
+                recalcAutoPayer(e);
+              }
+            });
+            saveState();
+            renderStepPeople();
+          });
+        });
+
+        container.querySelectorAll('.person-input').forEach(inp => {
+          inp.addEventListener('input', () => {
+            const pid = inp.getAttribute('data-person-id');
+            const p = state.people.find(p => p.id === pid);
+            // maxlength ya lo limita al escribir, pero por si acaso (pegar texto
+            // largo en navegadores que no lo respetan) también se recorta aquí.
+            if (inp.value.length > 16) inp.value = inp.value.slice(0, 16);
+            if (p) p.name = inp.value;
+            saveState();
+          });
+          // La mayúscula inicial se aplica al salir del campo (no mientras se
+          // escribe) para no mover el cursor a media palabra.
+          inp.addEventListener('blur', () => {
+            const pid = inp.getAttribute('data-person-id');
+            const p = state.people.find(p => p.id === pid);
+            if (!p) return;
+            const normalized = sentenceCase(p.name);
+            if (normalized !== p.name) {
+              p.name = normalized;
+              inp.value = normalized;
+              saveState();
+            }
+          });
+        });
+
+        document.getElementById('people-next').addEventListener('click', () => {
+          const errorEl = document.getElementById('people-error');
+          const named = state.people.filter(p => p.name.trim().length > 0);
+          if (state.people.length < 2) {
+            errorEl.textContent = 'Necesitas al menos 2 personas para dividir gastos.';
+            errorEl.classList.remove('hidden');
+            return;
+          }
+          if (named.length !== state.people.length) {
+            errorEl.textContent = 'Ponle nombre a todas las personas (o elimina las vacías).';
+            errorEl.classList.remove('hidden');
+            return;
+          }
+          state.people.forEach(p => p.name = sentenceCase(p.name));
+          state.step = 1;
+          saveState();
+          render(true);
+        });
+
+        if (count === 0) {
+          state.people.push({ id: uid(), name: '' }, { id: uid(), name: '' });
+          saveState();
+          renderStepPeople();
         }
-      });
-    });
-
-    document.getElementById('people-next').addEventListener('click', () => {
-      const errorEl = document.getElementById('people-error');
-      const named = state.people.filter(p => p.name.trim().length > 0);
-      if (state.people.length < 2) {
-        errorEl.textContent = 'Necesitas al menos 2 personas para dividir gastos.';
-        errorEl.classList.remove('hidden');
-        return;
       }
-      if (named.length !== state.people.length) {
-        errorEl.textContent = 'Ponle nombre a todas las personas (o elimina las vacías).';
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      state.people.forEach(p => p.name = sentenceCase(p.name));
-      state.step = 1;
-      saveState();
-      render(true);
-    });
 
-    if (count === 0) {
-      state.people.push({ id: uid(), name: '' }, { id: uid(), name: '' });
-      saveState();
-      renderStepPeople();
-    }
-  }
+      /* ---------------- Step 1: Gastos ---------------- */
+      function renderStepExpenses() {
+        const container = document.getElementById('step-content');
 
-  /* ---------------- Step 1: Gastos ---------------- */
-  function renderStepExpenses() {
-    const container = document.getElementById('step-content');
+        if (state.expenses.length === 0) {
+          addExpense(true);
+          return;
+        }
 
-    if (state.expenses.length === 0) {
-      addExpense(true);
-      return;
-    }
+        const cards = state.expenses.map((exp, idx) => renderExpenseCard(exp, idx)).join('');
 
-    const cards = state.expenses.map((exp, idx) => renderExpenseCard(exp, idx)).join('');
-
-    container.innerHTML = `
+        container.innerHTML = `
       <div class="space-y-4">
         ${cards}
       </div>
@@ -583,48 +705,48 @@
       </div>
     `;
 
-    document.getElementById('add-expense').addEventListener('click', () => addExpense(false));
-    document.getElementById('expenses-back').addEventListener('click', () => { state.step = 0; saveState(); render(true); });
-    document.getElementById('expenses-next').addEventListener('click', onCalculate);
+        document.getElementById('add-expense').addEventListener('click', () => addExpense(false));
+        document.getElementById('expenses-back').addEventListener('click', () => { state.step = 0; saveState(); render(true); });
+        document.getElementById('expenses-next').addEventListener('click', onCalculate);
 
-    bindExpenseCardEvents();
-  }
+        bindExpenseCardEvents();
+      }
 
-  function addExpense(skipRender) {
-    // Minimiza los gastos que ya había antes de meter el nuevo, para que la
-    // lista no crezca sin control — solo el que estás por llenar se queda
-    // abierto.
-    state.expenses.forEach(e => collapsedExpenseIds.add(e.id));
-    const newExpense = {
-      id: uid(),
-      name: '',
-      amount: '',
-      // Sin nada preseleccionado (ni pagador ni participantes): que quede
-      // clarísimo que hay que marcarlo a propósito, y no parezca que
-      // "ya venía marcado" algo que el usuario no eligió.
-      payers: [],
-      participants: [],
-    };
-    state.expenses.push(newExpense);
-    saveState();
-    renderStepExpenses();
-    if (!skipRender) {
-      // Lleva la vista directo a la tarjeta nueva, igual que "Calcular" te
-      // manda arriba a ver el resultado — aquí te manda abajo a donde vas a
-      // seguir escribiendo.
-      const el = document.querySelector(`[data-expense-card="${newExpense.id}"]`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
+      function addExpense(skipRender) {
+        // Minimiza los gastos que ya había antes de meter el nuevo, para que la
+        // lista no crezca sin control — solo el que estás por llenar se queda
+        // abierto.
+        state.expenses.forEach(e => collapsedExpenseIds.add(e.id));
+        const newExpense = {
+          id: uid(),
+          name: '',
+          amount: '',
+          // Sin nada preseleccionado (ni pagador ni participantes): que quede
+          // clarísimo que hay que marcarlo a propósito, y no parezca que
+          // "ya venía marcado" algo que el usuario no eligió.
+          payers: [],
+          participants: [],
+        };
+        state.expenses.push(newExpense);
+        saveState();
+        renderStepExpenses();
+        if (!skipRender) {
+          // Lleva la vista directo a la tarjeta nueva, igual que "Calcular" te
+          // manda arriba a ver el resultado — aquí te manda abajo a donde vas a
+          // seguir escribiendo.
+          const el = document.querySelector(`[data-expense-card="${newExpense.id}"]`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
 
-  function renderExpenseCard(exp, idx) {
-    const totalAmt = parseFloat(exp.amount) || 0;
+      function renderExpenseCard(exp, idx) {
+        const totalAmt = parseFloat(exp.amount) || 0;
 
-    if (collapsedExpenseIds.has(exp.id)) {
-      const nameDisplay = exp.name
-        ? escapeHtml(exp.name)
-        : '<span class="opacity-60 font-normal">Sin nombre</span>';
-      return `
+        if (collapsedExpenseIds.has(exp.id)) {
+          const nameDisplay = exp.name
+            ? escapeHtml(exp.name)
+            : '<span class="opacity-60 font-normal">Sin nombre</span>';
+          return `
         <button type="button" data-expand-expense="${exp.id}" data-expense-card="${exp.id}" class="step-enter w-full text-left rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-4 shadow-sm flex items-center justify-between gap-3 hover:border-brand-light-primary dark:hover:border-brand-dark-primary transition-colors">
           <div class="flex items-center gap-2 min-w-0">
             <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext shrink-0">Gasto ${idx + 1}</span>
@@ -635,30 +757,30 @@
             <span class="text-brand-light-subtext dark:text-brand-dark-subtext text-xs">▾</span>
           </div>
         </button>`;
-    }
+        }
 
-    const payerChips = state.people.map(p => {
-      const checked = exp.payers.some(x => x.personId === p.id);
-      return `
+        const payerChips = state.people.map(p => {
+          const checked = exp.payers.some(x => x.personId === p.id);
+          return `
         <label class="payer-chip cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${checked
-          ? 'bg-brand-light-primary dark:bg-brand-dark-primary text-white border-brand-light-primary dark:border-brand-dark-primary'
-          : 'bg-transparent text-brand-light-subtext dark:text-brand-dark-subtext border-brand-light-border dark:border-brand-dark-border'}">
+              ? 'bg-brand-light-primary dark:bg-brand-dark-primary text-white border-brand-light-primary dark:border-brand-dark-primary'
+              : 'bg-transparent text-brand-light-subtext dark:text-brand-dark-subtext border-brand-light-border dark:border-brand-dark-border'}">
           <input type="checkbox" class="hidden payer-checkbox" data-expense-id="${exp.id}" data-person-id="${p.id}" ${checked ? 'checked' : ''} />
           ${escapeHtml(p.name)}
         </label>`;
-    }).join('');
+        }).join('');
 
-    let payerAmountsHtml = '';
-    if (exp.payers.length > 1) {
-      const sum = exp.payers.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
-      const diff = Math.round((totalAmt - sum) * 100) / 100;
-      const rows = exp.payers.map(x => `
+        let payerAmountsHtml = '';
+        if (exp.payers.length > 1) {
+          const sum = exp.payers.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+          const diff = Math.round((totalAmt - sum) * 100) / 100;
+          const rows = exp.payers.map(x => `
         <div class="flex items-center gap-2">
           <span class="text-sm w-24 truncate">${escapeHtml(personName(x.personId))}</span>
           <input type="number" inputmode="decimal" min="0" step="0.01" data-payer-amount data-expense-id="${exp.id}" data-person-id="${x.personId}" value="${x.amount}" placeholder="ej. 80"
             class="flex-1 min-w-0 rounded-lg border border-brand-light-border dark:border-brand-dark-border bg-transparent px-2.5 py-1.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
         </div>`).join('');
-      payerAmountsHtml = `
+          payerAmountsHtml = `
         <div class="mt-2 space-y-1.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] p-2.5">
           ${rows}
           <div class="flex items-center justify-between pt-1">
@@ -668,20 +790,20 @@
             </span>
           </div>
         </div>`;
-    }
+        }
 
-    const participantChips = state.people.map(p => {
-      const checked = exp.participants.includes(p.id);
-      return `
+        const participantChips = state.people.map(p => {
+          const checked = exp.participants.includes(p.id);
+          return `
         <label class="participant-chip cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${checked
-          ? 'bg-brand-light-primary dark:bg-brand-dark-primary text-white border-brand-light-primary dark:border-brand-dark-primary'
-          : 'bg-transparent text-brand-light-subtext dark:text-brand-dark-subtext border-brand-light-border dark:border-brand-dark-border'}">
+              ? 'bg-brand-light-primary dark:bg-brand-dark-primary text-white border-brand-light-primary dark:border-brand-dark-primary'
+              : 'bg-transparent text-brand-light-subtext dark:text-brand-dark-subtext border-brand-light-border dark:border-brand-dark-border'}">
           <input type="checkbox" class="hidden participant-checkbox" data-expense-id="${exp.id}" data-person-id="${p.id}" ${checked ? 'checked' : ''} />
           ${escapeHtml(p.name)}
         </label>`;
-    }).join('');
+        }).join('');
 
-    return `
+        return `
       <div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm relative" data-expense-card="${exp.id}">
         <div class="flex items-center justify-between mb-3 -m-1 p-1 rounded-xl ${state.expenses.length > 1 ? 'cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors' : ''}" ${state.expenses.length > 1 ? `data-collapse-expense="${exp.id}" aria-label="Minimizar gasto"` : ''}>
           <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext">Gasto ${idx + 1}</span>
@@ -713,368 +835,368 @@
         </div>
       </div>
     `;
-  }
-
-  function bindExpenseCardEvents() {
-    document.querySelectorAll('[data-remove-expense]').forEach(btn => {
-      btn.addEventListener('click', (evt) => {
-        evt.stopPropagation(); // no debe disparar también el "minimizar" del header
-        const eid = btn.getAttribute('data-remove-expense');
-        state.expenses = state.expenses.filter(e => e.id !== eid);
-        collapsedExpenseIds.delete(eid);
-        saveState();
-        renderStepExpenses();
-      });
-    });
-    document.querySelectorAll('[data-expand-expense]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        collapsedExpenseIds.delete(btn.getAttribute('data-expand-expense'));
-        renderStepExpenses();
-      });
-    });
-    document.querySelectorAll('[data-collapse-expense]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        collapsedExpenseIds.add(btn.getAttribute('data-collapse-expense'));
-        renderStepExpenses();
-      });
-    });
-    document.querySelectorAll('[data-expense-name]').forEach(inp => {
-      inp.addEventListener('input', () => {
-        const eid = inp.getAttribute('data-expense-name');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (inp.value.length > 20) inp.value = inp.value.slice(0, 20);
-        if (exp) exp.name = inp.value;
-        saveState();
-      });
-      inp.addEventListener('blur', () => {
-        const eid = inp.getAttribute('data-expense-name');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (!exp) return;
-        const normalized = sentenceCase(exp.name);
-        if (normalized !== exp.name) {
-          exp.name = normalized;
-          inp.value = normalized;
-          saveState();
-        }
-      });
-    });
-    document.querySelectorAll('[data-expense-amount]').forEach(inp => {
-      inp.addEventListener('input', () => {
-        const eid = inp.getAttribute('data-expense-amount');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (!exp) return;
-        exp.amount = inp.value;
-        if (exp.payers.length === 1) {
-          // Con un solo pagador, su monto siempre coincide con el total.
-          exp.payers[0].amount = inp.value;
-        } else if (exp.payers.length > 1) {
-          // Si el total cambia, los montos que ya estaban escritos podrían
-          // dejar de cuadrar (son de cuando el total era otro). Para que
-          // nunca se quede un número "viejo" que ya no corresponde, se
-          // reinician a partes iguales del nuevo total.
-          splitPayersEqually(exp);
-        }
-        saveState();
-        syncPayerAmountInputs(exp, null);
-        updatePayerDiff(eid);
-      });
-    });
-    document.querySelectorAll('.payer-checkbox').forEach(chk => {
-      chk.addEventListener('change', () => {
-        const eid = chk.getAttribute('data-expense-id');
-        const pid = chk.getAttribute('data-person-id');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (!exp) return;
-        const prevCount = exp.payers.length;
-        if (chk.checked) {
-          if (!exp.payers.some(x => x.personId === pid)) exp.payers.push({ personId: pid, amount: '' });
-        } else {
-          exp.payers = exp.payers.filter(x => x.personId !== pid);
-        }
-        if (exp.payers.length === 1) {
-          exp.payers[0].amount = exp.amount;
-          exp.payers[0].auto = false;
-        } else if (exp.payers.length > 1 && prevCount <= 1) {
-          // Se acaba de pasar de un solo pagador a varios: si dejamos el monto
-          // completo "pegado" a esa persona, el cálculo automático del resto
-          // ya no puede saber cuánto falta. Se limpia para que, en cuanto
-          // escribas cuánto puso alguien, el resto se calcule solo.
-          exp.payers.forEach(p => { p.amount = ''; p.auto = false; });
-        } else if (exp.payers.length > 1) {
-          // Se agregó o quitó un pagador mientras ya había otros con monto:
-          // si alguno estaba marcado como "el resto", se recalcula de inmediato.
-          recalcAutoPayer(exp);
-        }
-        saveState();
-        renderStepExpenses();
-      });
-    });
-    document.querySelectorAll('[data-payer-amount]').forEach(inp => {
-      inp.addEventListener('input', () => {
-        const eid = inp.getAttribute('data-expense-id');
-        const pid = inp.getAttribute('data-person-id');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (!exp) return;
-        const payer = exp.payers.find(x => x.personId === pid);
-        if (payer) payer.amount = inp.value;
-        autoFillPayerAmounts(exp, pid);
-        saveState();
-        syncPayerAmountInputs(exp, pid);
-        updatePayerDiff(eid);
-      });
-    });
-    document.querySelectorAll('[data-split-equal]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const eid = btn.getAttribute('data-split-equal');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (!exp || exp.payers.length === 0) return;
-        splitPayersEqually(exp);
-        saveState();
-        renderStepExpenses();
-      });
-    });
-    document.querySelectorAll('[data-toggle-all-participants]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const eid = btn.getAttribute('data-toggle-all-participants');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (!exp) return;
-        // "Todos" alterna: si ya estaban todos marcados, los desmarca a
-        // todos de un tap; si no, los marca a todos.
-        const allSelected = state.people.length > 0 && state.people.every(p => exp.participants.includes(p.id));
-        exp.participants = allSelected ? [] : state.people.map(p => p.id);
-        saveState();
-        renderStepExpenses();
-      });
-    });
-    document.querySelectorAll('[data-toggle-all-payers]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const eid = btn.getAttribute('data-toggle-all-payers');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (!exp) return;
-        const allSelected = state.people.length > 0 && state.people.every(p => exp.payers.some(x => x.personId === p.id));
-        if (allSelected) {
-          exp.payers = [];
-        } else if (state.people.length === 1) {
-          exp.payers = [{ personId: state.people[0].id, amount: exp.amount, auto: false }];
-        } else {
-          // Con varios pagadores se deja el monto en blanco (igual que al
-          // marcarlos uno por uno) para que el cálculo automático del resto
-          // pueda hacer su trabajo en cuanto se escriba algo.
-          exp.payers = state.people.map(p => ({ personId: p.id, amount: '', auto: false }));
-        }
-        saveState();
-        renderStepExpenses();
-      });
-    });
-    document.querySelectorAll('.participant-checkbox').forEach(chk => {
-      chk.addEventListener('change', () => {
-        const eid = chk.getAttribute('data-expense-id');
-        const pid = chk.getAttribute('data-person-id');
-        const exp = state.expenses.find(e => e.id === eid);
-        if (!exp) return;
-        if (chk.checked) {
-          if (!exp.participants.includes(pid)) exp.participants.push(pid);
-        } else {
-          exp.participants = exp.participants.filter(id => id !== pid);
-        }
-        saveState();
-        // Reconstruye el paso completo en vez de solo alternar clases CSS a mano:
-        // así el estado (checked, texto, colores) nunca se puede desincronizar.
-        renderStepExpenses();
-      });
-    });
-  }
-
-  function splitPayersEqually(exp) {
-    const total = parseFloat(exp.amount) || 0;
-    const n = exp.payers.length;
-    if (n === 0) return;
-    const base = Math.floor((total / n) * 100) / 100;
-    let assigned = 0;
-    exp.payers.forEach((pay, i) => {
-      pay.auto = false; // partes iguales es una asignación explícita, no "el resto"
-      if (i < n - 1) { pay.amount = formatAmountInput(base); assigned += base; }
-      else { pay.amount = formatAmountInput(total - assigned); }
-    });
-  }
-
-  // Recalcula el monto del pagador marcado como "automático" (si hay uno) a
-  // partir del total menos lo que ya tienen los demás.
-  function recalcAutoPayer(exp) {
-    const autoPayer = exp.payers.find(p => p.auto);
-    if (!autoPayer) return;
-    const total = parseFloat(exp.amount) || 0;
-    const sumOthers = exp.payers.reduce((s, p) => (p === autoPayer ? s : s + (parseFloat(p.amount) || 0)), 0);
-    const remainder = Math.round((total - sumOthers) * 100) / 100;
-    autoPayer.amount = remainder >= 0 ? formatAmountInput(remainder) : '0';
-  }
-
-  // Si de N pagadores solo queda uno sin monto, ese se vuelve "el automático"
-  // y se recalcula con cada tecla que escribas en los demás — no solo la
-  // primera vez, para que no se quede "congelado" al ir corrigiendo un monto.
-  function autoFillPayerAmounts(exp, editedPid) {
-    if (exp.payers.length < 2) return;
-    const edited = exp.payers.find(p => p.personId === editedPid);
-    if (!edited) return;
-
-    // Si el usuario escribe directamente sobre el campo que era "el
-    // automático", deja de serlo: ahora es un valor puesto a mano.
-    if (edited.auto) edited.auto = false;
-
-    let autoPayer = exp.payers.find(p => p.auto && p.personId !== editedPid);
-    if (!autoPayer) {
-      const others = exp.payers.filter(p => p.personId !== editedPid);
-      const blanks = others.filter(p => p.amount === '' || p.amount === null || p.amount === undefined);
-      if (blanks.length === 1) {
-        autoPayer = blanks[0];
-        autoPayer.auto = true;
       }
-    }
-    recalcAutoPayer(exp);
-  }
 
-  function syncPayerAmountInputs(exp, editedPid) {
-    exp.payers.forEach(p => {
-      if (p.personId === editedPid) return;
-      const el = document.querySelector(`[data-payer-amount][data-expense-id="${exp.id}"][data-person-id="${p.personId}"]`);
-      if (el && el.value !== p.amount) el.value = p.amount;
-    });
-  }
+      function bindExpenseCardEvents() {
+        document.querySelectorAll('[data-remove-expense]').forEach(btn => {
+          btn.addEventListener('click', (evt) => {
+            evt.stopPropagation(); // no debe disparar también el "minimizar" del header
+            const eid = btn.getAttribute('data-remove-expense');
+            state.expenses = state.expenses.filter(e => e.id !== eid);
+            collapsedExpenseIds.delete(eid);
+            saveState();
+            renderStepExpenses();
+          });
+        });
+        document.querySelectorAll('[data-expand-expense]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            collapsedExpenseIds.delete(btn.getAttribute('data-expand-expense'));
+            renderStepExpenses();
+          });
+        });
+        document.querySelectorAll('[data-collapse-expense]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            collapsedExpenseIds.add(btn.getAttribute('data-collapse-expense'));
+            renderStepExpenses();
+          });
+        });
+        document.querySelectorAll('[data-expense-name]').forEach(inp => {
+          inp.addEventListener('input', () => {
+            const eid = inp.getAttribute('data-expense-name');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (inp.value.length > 20) inp.value = inp.value.slice(0, 20);
+            if (exp) exp.name = inp.value;
+            saveState();
+          });
+          inp.addEventListener('blur', () => {
+            const eid = inp.getAttribute('data-expense-name');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (!exp) return;
+            const normalized = sentenceCase(exp.name);
+            if (normalized !== exp.name) {
+              exp.name = normalized;
+              inp.value = normalized;
+              saveState();
+            }
+          });
+        });
+        document.querySelectorAll('[data-expense-amount]').forEach(inp => {
+          inp.addEventListener('input', () => {
+            const eid = inp.getAttribute('data-expense-amount');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (!exp) return;
+            exp.amount = inp.value;
+            if (exp.payers.length === 1) {
+              // Con un solo pagador, su monto siempre coincide con el total.
+              exp.payers[0].amount = inp.value;
+            } else if (exp.payers.length > 1) {
+              // Si el total cambia, los montos que ya estaban escritos podrían
+              // dejar de cuadrar (son de cuando el total era otro). Para que
+              // nunca se quede un número "viejo" que ya no corresponde, se
+              // reinician a partes iguales del nuevo total.
+              splitPayersEqually(exp);
+            }
+            saveState();
+            syncPayerAmountInputs(exp, null);
+            updatePayerDiff(eid);
+          });
+        });
+        document.querySelectorAll('.payer-checkbox').forEach(chk => {
+          chk.addEventListener('change', () => {
+            const eid = chk.getAttribute('data-expense-id');
+            const pid = chk.getAttribute('data-person-id');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (!exp) return;
+            const prevCount = exp.payers.length;
+            if (chk.checked) {
+              if (!exp.payers.some(x => x.personId === pid)) exp.payers.push({ personId: pid, amount: '' });
+            } else {
+              exp.payers = exp.payers.filter(x => x.personId !== pid);
+            }
+            if (exp.payers.length === 1) {
+              exp.payers[0].amount = exp.amount;
+              exp.payers[0].auto = false;
+            } else if (exp.payers.length > 1 && prevCount <= 1) {
+              // Se acaba de pasar de un solo pagador a varios: si dejamos el monto
+              // completo "pegado" a esa persona, el cálculo automático del resto
+              // ya no puede saber cuánto falta. Se limpia para que, en cuanto
+              // escribas cuánto puso alguien, el resto se calcule solo.
+              exp.payers.forEach(p => { p.amount = ''; p.auto = false; });
+            } else if (exp.payers.length > 1) {
+              // Se agregó o quitó un pagador mientras ya había otros con monto:
+              // si alguno estaba marcado como "el resto", se recalcula de inmediato.
+              recalcAutoPayer(exp);
+            }
+            saveState();
+            renderStepExpenses();
+          });
+        });
+        document.querySelectorAll('[data-payer-amount]').forEach(inp => {
+          inp.addEventListener('input', () => {
+            const eid = inp.getAttribute('data-expense-id');
+            const pid = inp.getAttribute('data-person-id');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (!exp) return;
+            const payer = exp.payers.find(x => x.personId === pid);
+            if (payer) payer.amount = inp.value;
+            autoFillPayerAmounts(exp, pid);
+            saveState();
+            syncPayerAmountInputs(exp, pid);
+            updatePayerDiff(eid);
+          });
+        });
+        document.querySelectorAll('[data-split-equal]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const eid = btn.getAttribute('data-split-equal');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (!exp || exp.payers.length === 0) return;
+            splitPayersEqually(exp);
+            saveState();
+            renderStepExpenses();
+          });
+        });
+        document.querySelectorAll('[data-toggle-all-participants]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const eid = btn.getAttribute('data-toggle-all-participants');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (!exp) return;
+            // "Todos" alterna: si ya estaban todos marcados, los desmarca a
+            // todos de un tap; si no, los marca a todos.
+            const allSelected = state.people.length > 0 && state.people.every(p => exp.participants.includes(p.id));
+            exp.participants = allSelected ? [] : state.people.map(p => p.id);
+            saveState();
+            renderStepExpenses();
+          });
+        });
+        document.querySelectorAll('[data-toggle-all-payers]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const eid = btn.getAttribute('data-toggle-all-payers');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (!exp) return;
+            const allSelected = state.people.length > 0 && state.people.every(p => exp.payers.some(x => x.personId === p.id));
+            if (allSelected) {
+              exp.payers = [];
+            } else if (state.people.length === 1) {
+              exp.payers = [{ personId: state.people[0].id, amount: exp.amount, auto: false }];
+            } else {
+              // Con varios pagadores se deja el monto en blanco (igual que al
+              // marcarlos uno por uno) para que el cálculo automático del resto
+              // pueda hacer su trabajo en cuanto se escriba algo.
+              exp.payers = state.people.map(p => ({ personId: p.id, amount: '', auto: false }));
+            }
+            saveState();
+            renderStepExpenses();
+          });
+        });
+        document.querySelectorAll('.participant-checkbox').forEach(chk => {
+          chk.addEventListener('change', () => {
+            const eid = chk.getAttribute('data-expense-id');
+            const pid = chk.getAttribute('data-person-id');
+            const exp = state.expenses.find(e => e.id === eid);
+            if (!exp) return;
+            if (chk.checked) {
+              if (!exp.participants.includes(pid)) exp.participants.push(pid);
+            } else {
+              exp.participants = exp.participants.filter(id => id !== pid);
+            }
+            saveState();
+            // Reconstruye el paso completo en vez de solo alternar clases CSS a mano:
+            // así el estado (checked, texto, colores) nunca se puede desincronizar.
+            renderStepExpenses();
+          });
+        });
+      }
 
-  function updatePayerDiff(expenseId) {
-    const exp = state.expenses.find(e => e.id === expenseId);
-    if (!exp || exp.payers.length <= 1) return;
-    const span = document.querySelector(`[data-payer-diff="${expenseId}"]`);
-    if (!span) return;
-    const total = parseFloat(exp.amount) || 0;
-    const sum = exp.payers.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
-    const diff = Math.round((total - sum) * 100) / 100;
-    const ok = Math.abs(diff) < 0.01;
-    span.textContent = ok ? '✓ Cuadra con el total' : (diff > 0 ? `Faltan ${fmt(diff)}` : `Sobran ${fmt(-diff)}`);
-    span.classList.toggle('text-brand-light-primary', ok);
-    span.classList.toggle('dark:text-brand-dark-primary', ok);
-    span.classList.toggle('text-rose-500', !ok);
-  }
+      function splitPayersEqually(exp) {
+        const total = parseFloat(exp.amount) || 0;
+        const n = exp.payers.length;
+        if (n === 0) return;
+        const base = Math.floor((total / n) * 100) / 100;
+        let assigned = 0;
+        exp.payers.forEach((pay, i) => {
+          pay.auto = false; // partes iguales es una asignación explícita, no "el resto"
+          if (i < n - 1) { pay.amount = formatAmountInput(base); assigned += base; }
+          else { pay.amount = formatAmountInput(total - assigned); }
+        });
+      }
 
-  function onCalculate() {
-    const errorEl = document.getElementById('expenses-error');
-    for (const exp of state.expenses) {
-      exp.name = sentenceCase(exp.name);
-      const amt = parseFloat(exp.amount);
-      if (!exp.name) { errorEl.textContent = 'Ponle nombre a todos los gastos.'; errorEl.classList.remove('hidden'); return; }
-      if (!amt || amt <= 0) { errorEl.textContent = `El gasto "${exp.name}" necesita un monto válido mayor a 0.`; errorEl.classList.remove('hidden'); return; }
-      if (!exp.payers || exp.payers.length === 0) { errorEl.textContent = `Falta indicar quién pagó "${exp.name}".`; errorEl.classList.remove('hidden'); return; }
-      if (exp.payers.length === 1) {
-        exp.payers[0].amount = exp.amount;
-      } else {
+      // Recalcula el monto del pagador marcado como "automático" (si hay uno) a
+      // partir del total menos lo que ya tienen los demás.
+      function recalcAutoPayer(exp) {
+        const autoPayer = exp.payers.find(p => p.auto);
+        if (!autoPayer) return;
+        const total = parseFloat(exp.amount) || 0;
+        const sumOthers = exp.payers.reduce((s, p) => (p === autoPayer ? s : s + (parseFloat(p.amount) || 0)), 0);
+        const remainder = Math.round((total - sumOthers) * 100) / 100;
+        autoPayer.amount = remainder >= 0 ? formatAmountInput(remainder) : '0';
+      }
+
+      // Si de N pagadores solo queda uno sin monto, ese se vuelve "el automático"
+      // y se recalcula con cada tecla que escribas en los demás — no solo la
+      // primera vez, para que no se quede "congelado" al ir corrigiendo un monto.
+      function autoFillPayerAmounts(exp, editedPid) {
+        if (exp.payers.length < 2) return;
+        const edited = exp.payers.find(p => p.personId === editedPid);
+        if (!edited) return;
+
+        // Si el usuario escribe directamente sobre el campo que era "el
+        // automático", deja de serlo: ahora es un valor puesto a mano.
+        if (edited.auto) edited.auto = false;
+
+        let autoPayer = exp.payers.find(p => p.auto && p.personId !== editedPid);
+        if (!autoPayer) {
+          const others = exp.payers.filter(p => p.personId !== editedPid);
+          const blanks = others.filter(p => p.amount === '' || p.amount === null || p.amount === undefined);
+          if (blanks.length === 1) {
+            autoPayer = blanks[0];
+            autoPayer.auto = true;
+          }
+        }
+        recalcAutoPayer(exp);
+      }
+
+      function syncPayerAmountInputs(exp, editedPid) {
+        exp.payers.forEach(p => {
+          if (p.personId === editedPid) return;
+          const el = document.querySelector(`[data-payer-amount][data-expense-id="${exp.id}"][data-person-id="${p.personId}"]`);
+          if (el && el.value !== p.amount) el.value = p.amount;
+        });
+      }
+
+      function updatePayerDiff(expenseId) {
+        const exp = state.expenses.find(e => e.id === expenseId);
+        if (!exp || exp.payers.length <= 1) return;
+        const span = document.querySelector(`[data-payer-diff="${expenseId}"]`);
+        if (!span) return;
+        const total = parseFloat(exp.amount) || 0;
         const sum = exp.payers.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
-        if (Math.abs(sum - amt) > 0.01) {
-          errorEl.textContent = `Lo que puso cada quien en "${exp.name}" debe sumar el total (${fmt(amt)}). Deja vacío el monto de una persona para que lo calculemos por ti, o usa "Dividir en partes iguales".`;
-          errorEl.classList.remove('hidden');
-          return;
+        const diff = Math.round((total - sum) * 100) / 100;
+        const ok = Math.abs(diff) < 0.01;
+        span.textContent = ok ? '✓ Cuadra con el total' : (diff > 0 ? `Faltan ${fmt(diff)}` : `Sobran ${fmt(-diff)}`);
+        span.classList.toggle('text-brand-light-primary', ok);
+        span.classList.toggle('dark:text-brand-dark-primary', ok);
+        span.classList.toggle('text-rose-500', !ok);
+      }
+
+      function onCalculate() {
+        const errorEl = document.getElementById('expenses-error');
+        for (const exp of state.expenses) {
+          exp.name = sentenceCase(exp.name);
+          const amt = parseFloat(exp.amount);
+          if (!exp.name) { errorEl.textContent = 'Ponle nombre a todos los gastos.'; errorEl.classList.remove('hidden'); return; }
+          if (!amt || amt <= 0) { errorEl.textContent = `El gasto "${exp.name}" necesita un monto válido mayor a 0.`; errorEl.classList.remove('hidden'); return; }
+          if (!exp.payers || exp.payers.length === 0) { errorEl.textContent = `Falta indicar quién pagó "${exp.name}".`; errorEl.classList.remove('hidden'); return; }
+          if (exp.payers.length === 1) {
+            exp.payers[0].amount = exp.amount;
+          } else {
+            const sum = exp.payers.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+            if (Math.abs(sum - amt) > 0.01) {
+              errorEl.textContent = `Lo que puso cada quien en "${exp.name}" debe sumar el total (${fmt(amt)}). Deja vacío el monto de una persona para que lo calculemos por ti, o usa "Dividir en partes iguales".`;
+              errorEl.classList.remove('hidden');
+              return;
+            }
+          }
+          if (!exp.participants || exp.participants.length === 0) { errorEl.textContent = `El gasto "${exp.name}" necesita al menos una persona en "¿Entre quiénes se reparte?".`; errorEl.classList.remove('hidden'); return; }
         }
+        saveState();
+        state.step = 2;
+        saveState();
+        render(true);
       }
-      if (!exp.participants || exp.participants.length === 0) { errorEl.textContent = `El gasto "${exp.name}" necesita al menos una persona en "¿Entre quiénes se reparte?".`; errorEl.classList.remove('hidden'); return; }
-    }
-    saveState();
-    state.step = 2;
-    saveState();
-    render(true);
-  }
 
-  /* ---------------- Cálculo de deudas ---------------- */
-  function computeSettlement() {
-    const balances = {};
-    state.people.forEach(p => balances[p.id] = 0);
+      /* ---------------- Cálculo de deudas ---------------- */
+      function computeSettlement() {
+        const balances = {};
+        state.people.forEach(p => balances[p.id] = 0);
 
-    state.expenses.forEach(exp => {
-      const amt = parseFloat(exp.amount) || 0;
-      const n = exp.participants.length || 1;
-      const share = amt / n;
-      exp.payers.forEach(pay => {
-        if (balances[pay.personId] !== undefined) balances[pay.personId] += (parseFloat(pay.amount) || 0);
-      });
-      exp.participants.forEach(pid => {
-        if (balances[pid] !== undefined) balances[pid] -= share;
-      });
-    });
+        state.expenses.forEach(exp => {
+          const amt = parseFloat(exp.amount) || 0;
+          const n = exp.participants.length || 1;
+          const share = amt / n;
+          exp.payers.forEach(pay => {
+            if (balances[pay.personId] !== undefined) balances[pay.personId] += (parseFloat(pay.amount) || 0);
+          });
+          exp.participants.forEach(pid => {
+            if (balances[pid] !== undefined) balances[pid] -= share;
+          });
+        });
 
-    const EPS = 0.005;
-    const creditors = [];
-    const debtors = [];
-    Object.entries(balances).forEach(([id, bal]) => {
-      const rounded = Math.round(bal * 100) / 100;
-      if (rounded > EPS) creditors.push({ id, amount: rounded });
-      else if (rounded < -EPS) debtors.push({ id, amount: -rounded });
-    });
-    creditors.sort((a, b) => b.amount - a.amount);
-    debtors.sort((a, b) => b.amount - a.amount);
+        const EPS = 0.005;
+        const creditors = [];
+        const debtors = [];
+        Object.entries(balances).forEach(([id, bal]) => {
+          const rounded = Math.round(bal * 100) / 100;
+          if (rounded > EPS) creditors.push({ id, amount: rounded });
+          else if (rounded < -EPS) debtors.push({ id, amount: -rounded });
+        });
+        creditors.sort((a, b) => b.amount - a.amount);
+        debtors.sort((a, b) => b.amount - a.amount);
 
-    const transactions = [];
-    let ci = 0, di = 0;
-    while (ci < creditors.length && di < debtors.length) {
-      const c = creditors[ci];
-      const d = debtors[di];
-      const pay = Math.min(c.amount, d.amount);
-      if (pay > EPS) {
-        transactions.push({ from: d.id, to: c.id, amount: Math.round(pay * 100) / 100 });
+        const transactions = [];
+        let ci = 0, di = 0;
+        while (ci < creditors.length && di < debtors.length) {
+          const c = creditors[ci];
+          const d = debtors[di];
+          const pay = Math.min(c.amount, d.amount);
+          if (pay > EPS) {
+            transactions.push({ from: d.id, to: c.id, amount: Math.round(pay * 100) / 100 });
+          }
+          c.amount -= pay;
+          d.amount -= pay;
+          if (c.amount <= EPS) ci++;
+          if (d.amount <= EPS) di++;
+        }
+
+        return { balances, transactions };
       }
-      c.amount -= pay;
-      d.amount -= pay;
-      if (c.amount <= EPS) ci++;
-      if (d.amount <= EPS) di++;
-    }
 
-    return { balances, transactions };
-  }
+      /* ---------------- Compartir resultado ---------------- */
+      function buildShareText(total, transactions) {
+        const lines = ['🤑 *¿De A Cuánto?*', `*Resultado Total:* ${fmt(total)}`, ''];
+        if (transactions.length > 0) {
+          transactions.forEach(t => {
+            lines.push(`💸 *${personName(t.from)}* le paga a *${personName(t.to)}*: ${fmt(t.amount)}`);
+          });
+        } else {
+          lines.push('🎉 *¡Todos están a mano! No hay pagos pendientes.*');
+        }
+        lines.push('', '*Calculado con:* https://de-a-cuanto.vercel.app/');
+        return lines.join('\n');
+      }
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = document.getElementById('toast');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.remove('hidden');
+        requestAnimationFrame(() => el.classList.add('toast-visible'));
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.classList.remove('toast-visible');
+          setTimeout(() => el.classList.add('hidden'), 300);
+        }, 2600);
+      }
 
-  /* ---------------- Compartir resultado ---------------- */
-  function buildShareText(total, transactions) {
-    const lines = ['🤑 *¿De A Cuánto?*', `*Resultado Total:* ${fmt(total)}`, ''];
-    if (transactions.length > 0) {
-      transactions.forEach(t => {
-        lines.push(`💸 *${personName(t.from)}* le paga a *${personName(t.to)}*: ${fmt(t.amount)}`);
-      });
-    } else {
-      lines.push('🎉 *¡Todos están a mano! No hay pagos pendientes.*');
-    }
-    lines.push('', '*Calculado con:* de-a-cuanto.vercel.app');
-    return lines.join('\n');
-  }
-  let toastTimer = null;
-  function showToast(msg) {
-    const el = document.getElementById('toast');
-    if (!el) return;
-    el.textContent = msg;
-    el.classList.remove('hidden');
-    requestAnimationFrame(() => el.classList.add('toast-visible'));
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      el.classList.remove('toast-visible');
-      setTimeout(() => el.classList.add('hidden'), 300);
-    }, 2600);
-  }
+      /* ---------------- Step 2: Resultados ---------------- */
+      function renderStepResults() {
+        const container = document.getElementById('step-content');
+        const { balances, transactions } = computeSettlement();
+        const total = state.expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
 
-  /* ---------------- Step 2: Resultados ---------------- */
-  function renderStepResults() {
-    const container = document.getElementById('step-content');
-    const { balances, transactions } = computeSettlement();
-    const total = state.expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
-
-    const balanceRows = state.people.map(p => {
-      const b = Math.round((balances[p.id] || 0) * 100) / 100;
-      const isPos = b > 0.005;
-      const isNeg = b < -0.005;
-      const color = isPos ? 'text-brand-light-primary dark:text-brand-dark-primary' : isNeg ? 'text-rose-500' : 'text-brand-light-subtext dark:text-brand-dark-subtext';
-      const label = isPos ? `le deben ${fmt(b)}` : isNeg ? `debe ${fmt(-b)}` : 'está a mano';
-      return `<div class="flex items-center justify-between py-2 border-b border-brand-light-border dark:border-brand-dark-border last:border-0">
+        const balanceRows = state.people.map(p => {
+          const b = Math.round((balances[p.id] || 0) * 100) / 100;
+          const isPos = b > 0.005;
+          const isNeg = b < -0.005;
+          const color = isPos ? 'text-brand-light-primary dark:text-brand-dark-primary' : isNeg ? 'text-rose-500' : 'text-brand-light-subtext dark:text-brand-dark-subtext';
+          const label = isPos ? `le deben ${fmt(b)}` : isNeg ? `debe ${fmt(-b)}` : 'está a mano';
+          return `<div class="flex items-center justify-between py-2 border-b border-brand-light-border dark:border-brand-dark-border last:border-0">
         <span class="font-medium text-sm">${escapeHtml(p.name)}</span>
         <span class="text-sm font-semibold ${color}">${label}</span>
       </div>`;
-    }).join('');
+        }).join('');
 
-    const settlementRows = transactions.length > 0
-      ? transactions.map(t => `
+        const settlementRows = transactions.length > 0
+          ? transactions.map(t => `
         <div class="step-enter flex items-center gap-3 rounded-2xl border border-brand-light-border dark:border-brand-dark-border p-3.5">
           <span class="text-xl">💸</span>
           <div class="flex-1 min-w-0 text-sm">
@@ -1085,9 +1207,9 @@
           <span class="font-bold text-brand-light-primary dark:text-brand-dark-primary">${fmt(t.amount)}</span>
         </div>
       `).join('')
-      : `<div class="text-center py-6 text-sm text-brand-light-subtext dark:text-brand-dark-subtext">🎉 ¡Todos están a mano! No hay pagos pendientes.</div>`;
+          : `<div class="text-center py-6 text-sm text-brand-light-subtext dark:text-brand-dark-subtext">🎉 ¡Todos están a mano! No hay pagos pendientes.</div>`;
 
-    container.innerHTML = `
+        container.innerHTML = `
       <div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm mb-4">
         <div class="flex items-center justify-between mb-1">
           <h2 class="text-lg font-bold">Resultado</h2>
@@ -1109,89 +1231,89 @@
       </div>
     `;
 
-    document.getElementById('results-share').addEventListener('click', async () => {
-      const text = buildShareText(total, transactions);
-      // navigator.share abre el menú nativo de compartir del sistema, para
-      // que tú elijas WhatsApp, Telegram, mensajes, lo que sea — es lo mejor
-      // en celular. Si el navegador no lo soporta (la mayoría de escritorio),
-      // se copia el texto al portapapeles como respaldo.
-      if (navigator.share) {
+        document.getElementById('results-share').addEventListener('click', async () => {
+          const text = buildShareText(total, transactions);
+          // navigator.share abre el menú nativo de compartir del sistema, para
+          // que tú elijas WhatsApp, Telegram, mensajes, lo que sea — es lo mejor
+          // en celular. Si el navegador no lo soporta (la mayoría de escritorio),
+          // se copia el texto al portapapeles como respaldo.
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: '¿De A Cuánto?', text });
+            } catch (err) {
+              // El usuario canceló el share o falló silenciosamente: no hacer nada.
+            }
+            return;
+          }
+          try {
+            await navigator.clipboard.writeText(text);
+            showToast('Resultado copiado — pégalo donde quieras 📋');
+          } catch (err) {
+            showToast('No se pudo copiar automáticamente 😕');
+          }
+        });
+        document.getElementById('results-back').addEventListener('click', () => { state.step = 1; saveState(); render(true); });
+        document.getElementById('results-restart').addEventListener('click', () => {
+          if (confirm('¿Seguro que quieres borrar todo y empezar de nuevo?')) {
+            state = defaultState();
+            saveState();
+            render(true);
+          }
+        });
+      }
+
+      /* ---------------- Utils ---------------- */
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      }
+
+      /* ---------------- Router ---------------- */
+      // scrollToTop: solo se pide true al cambiar de paso (Continuar, Calcular,
+      // Atrás...) para que el resultado quede a la vista de inmediato — no se usa
+      // en refrescos dentro del mismo paso (como cambiar de moneda) para no
+      // interrumpir al usuario mientras edita.
+      function render(scrollToTop) {
         try {
-          await navigator.share({ title: '¿De A Cuánto?', text });
+          renderProgress();
+          if (state.step === 0) renderStepPeople();
+          else if (state.step === 1) renderStepExpenses();
+          else renderStepResults();
+          if (scrollToTop) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         } catch (err) {
-          // El usuario canceló el share o falló silenciosamente: no hacer nada.
-        }
-        return;
-      }
-      try {
-        await navigator.clipboard.writeText(text);
-        showToast('Resultado copiado — pégalo donde quieras 📋');
-      } catch (err) {
-        showToast('No se pudo copiar automáticamente 😕');
-      }
-    });
-    document.getElementById('results-back').addEventListener('click', () => { state.step = 1; saveState(); render(true); });
-    document.getElementById('results-restart').addEventListener('click', () => {
-      if (confirm('¿Seguro que quieres borrar todo y empezar de nuevo?')) {
-        state = defaultState();
-        saveState();
-        render(true);
-      }
-    });
-  }
-
-  /* ---------------- Utils ---------------- */
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-
-  /* ---------------- Router ---------------- */
-  // scrollToTop: solo se pide true al cambiar de paso (Continuar, Calcular,
-  // Atrás...) para que el resultado quede a la vista de inmediato — no se usa
-  // en refrescos dentro del mismo paso (como cambiar de moneda) para no
-  // interrumpir al usuario mientras edita.
-  function render(scrollToTop) {
-    try {
-      renderProgress();
-      if (state.step === 0) renderStepPeople();
-      else if (state.step === 1) renderStepExpenses();
-      else renderStepResults();
-      if (scrollToTop) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    } catch (err) {
-      // Red de seguridad: si algo truena al dibujar la pantalla, mostramos un
-      // mensaje recuperable en vez de dejar la página en blanco.
-      console.error('Error al mostrar la app:', err);
-      const container = document.getElementById('step-content');
-      if (container) {
-        container.innerHTML = card(`
+          // Red de seguridad: si algo truena al dibujar la pantalla, mostramos un
+          // mensaje recuperable en vez de dejar la página en blanco.
+          console.error('Error al mostrar la app:', err);
+          const container = document.getElementById('step-content');
+          if (container) {
+            container.innerHTML = card(`
           <h2 class="text-lg font-bold mb-1">Algo no cargó bien 😕</h2>
           <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">Puede que tu progreso guardado haya quedado en un formato viejo. Empecemos de nuevo para arreglarlo.</p>
           ${btnPrimary('Empezar de nuevo', 'render-error-restart')}
         `);
-        const btn = document.getElementById('render-error-restart');
-        if (btn) btn.addEventListener('click', () => {
-          state = defaultState();
-          saveState();
-          render();
-        });
+            const btn = document.getElementById('render-error-restart');
+            if (btn) btn.addEventListener('click', () => {
+              state = defaultState();
+              saveState();
+              render();
+            });
+          }
+        }
       }
-    }
-  }
 
-  /* ---------------- Retomar un cálculo guardado ---------------- */
-  // localStorage no tiene fecha de caducidad: si dejaste algo a medias (o
-  // incluso ya terminado, sin darle a "Empezar de nuevo") hace un rato o
-  // hace semanas, seguía apareciendo solo con abrir la página, sin avisar.
-  // Ahora, si hay datos guardados de una visita anterior, se pregunta antes
-  // de mostrar nada — así nunca aparecen nombres "misteriosos" que ni
-  // pediste, ni se pierde por accidente algo que sí ibas a continuar.
-  function renderResumePrompt() {
-    document.getElementById('progress').innerHTML = '';
-    const container = document.getElementById('step-content');
-    const n = state.people.length;
-    container.innerHTML = card(`
+      /* ---------------- Retomar un cálculo guardado ---------------- */
+      // localStorage no tiene fecha de caducidad: si dejaste algo a medias (o
+      // incluso ya terminado, sin darle a "Empezar de nuevo") hace un rato o
+      // hace semanas, seguía apareciendo solo con abrir la página, sin avisar.
+      // Ahora, si hay datos guardados de una visita anterior, se pregunta antes
+      // de mostrar nada — así nunca aparecen nombres "misteriosos" que ni
+      // pediste, ni se pierde por accidente algo que sí ibas a continuar.
+      function renderResumePrompt() {
+        document.getElementById('progress').innerHTML = '';
+        const container = document.getElementById('step-content');
+        const n = state.people.length;
+        container.innerHTML = card(`
       <h2 class="text-lg font-bold mb-1">¿Seguimos donde quedaste?</h2>
       <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">Este navegador tiene guardado un cálculo con ${n} persona${n === 1 ? '' : 's'} de una visita anterior.</p>
       <div class="flex gap-2">
@@ -1199,31 +1321,32 @@
         <div class="w-1/2">${btnPrimary('Continuar', 'resume-continue')}</div>
       </div>
     `);
-    document.getElementById('resume-new').addEventListener('click', () => {
-      state = defaultState();
-      saveState();
-      render(true);
-    });
-    document.getElementById('resume-continue').addEventListener('click', () => {
-      render(true);
-    });
-  }
-
-  /* ---------------- Boot ---------------- */
-  window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-      document.getElementById('skeleton').style.display = 'none';
-      const app = document.getElementById('app');
-      app.classList.remove('hidden');
-      app.classList.add('flex');
-      if (state.people.length > 0) {
-        renderResumePrompt();
-      } else {
-        render();
+        document.getElementById('resume-new').addEventListener('click', () => {
+          state = defaultState();
+          saveState();
+          render(true);
+        });
+        document.getElementById('resume-continue').addEventListener('click', () => {
+          render(true);
+        });
       }
-    }, 850);
-  });
-})();
-</script>
+
+      /* ---------------- Boot ---------------- */
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          document.getElementById('skeleton').style.display = 'none';
+          const app = document.getElementById('app');
+          app.classList.remove('hidden');
+          app.classList.add('flex');
+          if (state.people.length > 0) {
+            renderResumePrompt();
+          } else {
+            render();
+          }
+        }, 850);
+      });
+    })();
+  </script>
 </body>
+
 </html>
