@@ -6,6 +6,19 @@
 <title>¿De A Cuánto? — Divide gastos fácil</title>
 <meta name="description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🤑%3C/text%3E%3C/svg%3E" />
+<!-- Vista previa al compartir el link (WhatsApp, redes, etc.). og-image.png
+     vive junto a index.html y se sirve como archivo estático. -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://de-a-cuanto.vercel.app/" />
+<meta property="og:title" content="¿De A Cuánto? — Divide gastos fácil" />
+<meta property="og:description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
+<meta property="og:image" content="https://de-a-cuanto.vercel.app/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="¿De A Cuánto? — Divide gastos fácil" />
+<meta name="twitter:description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
+<meta name="twitter:image" content="https://de-a-cuanto.vercel.app/og-image.png" />
 <!-- Tailwind is precompiled to styles.css at build time (see build.sh) instead of
      loaded from the cdn.tailwindcss.com Play CDN. The Play CDN needs to reach an
      external script at runtime to work at all — if it's blocked by a firewall,
@@ -159,13 +172,34 @@
     applyTheme(theme);
     try { sessionStorage.setItem('deacuanto:theme', theme); } catch (e) {}
   });
+  // El botón manual es solo un atajo opcional: si cambias el tema del
+  // dispositivo (aunque ya hubieras tocado el botón antes), la app se
+  // actualiza sola y en tiempo real, sin depender de él. Además de escuchar
+  // el evento "change" (que en iOS a veces no dispara si Safari estaba en
+  // segundo plano cuando cambiaste el tema), se vuelve a revisar cada vez
+  // que la pestaña vuelve a estar visible, por si el cambio ocurrió mientras
+  // no se veía la página.
+  function currentSystemTheme() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  let lastKnownSystemTheme = currentSystemTheme();
+  function syncToSystemTheme(systemTheme) {
+    if (systemTheme === lastKnownSystemTheme) return; // no hubo un cambio real
+    lastKnownSystemTheme = systemTheme;
+    theme = systemTheme;
+    applyTheme(theme);
+    try { sessionStorage.removeItem('deacuanto:theme'); } catch (e) {}
+  }
   try {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      let saved = null;
-      try { saved = sessionStorage.getItem('deacuanto:theme'); } catch (err) {}
-      if (!saved) { theme = e.matches ? 'dark' : 'light'; applyTheme(theme); }
-    });
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const onSystemChange = (e) => syncToSystemTheme(e.matches ? 'dark' : 'light');
+    if (mql.addEventListener) mql.addEventListener('change', onSystemChange);
+    else if (mql.addListener) mql.addListener(onSystemChange); // Safari viejo
   } catch (e) {}
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') syncToSystemTheme(currentSystemTheme());
+  });
+  window.addEventListener('pageshow', () => syncToSystemTheme(currentSystemTheme()));
 
   /* ---------------- Moneda ---------------- */
   const CURRENCIES = [
@@ -415,6 +449,16 @@
         state.expenses.forEach(e => {
           e.payers = e.payers.filter(pay => pay.personId !== pid);
           e.participants = e.participants.filter(id => id !== pid);
+          // Si con esta persona fuera se quedó un solo pagador, su monto
+          // vuelve a ser el total (igual que en cualquier otro momento con
+          // un solo pagador); si quedan varios, se recalcula el que estaba
+          // marcado como "el resto" para que no se quede con un número viejo.
+          if (e.payers.length === 1) {
+            e.payers[0].amount = e.amount;
+            e.payers[0].auto = false;
+          } else if (e.payers.length > 1) {
+            recalcAutoPayer(e);
+          }
         });
         saveState();
         renderStepPeople();
@@ -1000,6 +1044,35 @@
     }
   }
 
+  /* ---------------- Retomar un cálculo guardado ---------------- */
+  // localStorage no tiene fecha de caducidad: si dejaste algo a medias (o
+  // incluso ya terminado, sin darle a "Empezar de nuevo") hace un rato o
+  // hace semanas, seguía apareciendo solo con abrir la página, sin avisar.
+  // Ahora, si hay datos guardados de una visita anterior, se pregunta antes
+  // de mostrar nada — así nunca aparecen nombres "misteriosos" que ni
+  // pediste, ni se pierde por accidente algo que sí ibas a continuar.
+  function renderResumePrompt() {
+    document.getElementById('progress').innerHTML = '';
+    const container = document.getElementById('step-content');
+    const n = state.people.length;
+    container.innerHTML = card(`
+      <h2 class="text-lg font-bold mb-1">¿Seguimos donde quedaste?</h2>
+      <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">Este navegador tiene guardado un cálculo con ${n} persona${n === 1 ? '' : 's'} de una visita anterior.</p>
+      <div class="flex gap-2">
+        <button id="resume-new" class="w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-500/5 text-rose-500 font-semibold py-3 hover:bg-rose-500/10 active:scale-[0.98] transition-colors">Empezar nuevo</button>
+        <div class="w-1/2">${btnPrimary('Continuar', 'resume-continue')}</div>
+      </div>
+    `);
+    document.getElementById('resume-new').addEventListener('click', () => {
+      state = defaultState();
+      saveState();
+      render(true);
+    });
+    document.getElementById('resume-continue').addEventListener('click', () => {
+      render(true);
+    });
+  }
+
   /* ---------------- Boot ---------------- */
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
@@ -1007,7 +1080,11 @@
       const app = document.getElementById('app');
       app.classList.remove('hidden');
       app.classList.add('flex');
-      render();
+      if (state.people.length > 0) {
+        renderResumePrompt();
+      } else {
+        render();
+      }
     }, 850);
   });
 })();
