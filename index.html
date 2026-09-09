@@ -51,6 +51,24 @@
     background-size: 800px 100%;
     animation: shimmer 1.6s linear infinite;
   }
+  /* Destello que recorre los botones principales (Continuar, Calcular) de
+     vez en cuando, para que se sientan un poco más "vivos" sin ser molestos. */
+  @keyframes btnShine {
+    0%, 45% { left: -60%; }
+    65%, 100% { left: 130%; }
+  }
+  .btn-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.4), transparent);
+    transform: skewX(-18deg);
+    animation: btnShine 3.2s ease-in-out infinite;
+    pointer-events: none;
+  }
   .card-transition { transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.4); border-radius: 999px; }
@@ -123,6 +141,10 @@
   "use strict";
 
   /* ---------------- Theme ---------------- */
+  // El tema sigue automáticamente al del dispositivo en cada visita nueva.
+  // Si lo alternas a mano con el botón, esa elección se recuerda solo durante
+  // esta pestaña (sessionStorage) — la próxima vez que abras la app, vuelve a
+  // partir de lo que diga tu sistema, no se queda "pegado" para siempre.
   const root = document.documentElement;
   function applyTheme(mode) {
     if (mode === 'dark') { root.classList.add('dark'); document.getElementById('theme-icon').textContent = '☀️'; }
@@ -130,7 +152,7 @@
   }
   function getInitialTheme() {
     try {
-      const saved = localStorage.getItem('deacuanto:theme');
+      const saved = sessionStorage.getItem('deacuanto:theme');
       if (saved === 'dark' || saved === 'light') return saved;
     } catch (e) {}
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -140,12 +162,12 @@
   document.getElementById('theme-toggle').addEventListener('click', () => {
     theme = theme === 'dark' ? 'light' : 'dark';
     applyTheme(theme);
-    try { localStorage.setItem('deacuanto:theme', theme); } catch (e) {}
+    try { sessionStorage.setItem('deacuanto:theme', theme); } catch (e) {}
   });
   try {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       let saved = null;
-      try { saved = localStorage.getItem('deacuanto:theme'); } catch (err) {}
+      try { saved = sessionStorage.getItem('deacuanto:theme'); } catch (err) {}
       if (!saved) { theme = e.matches ? 'dark' : 'light'; applyTheme(theme); }
     });
   } catch (e) {}
@@ -221,7 +243,7 @@
     el.style.setProperty('--emoji-opacity', opacity);
     emojiBg.appendChild(el);
   }
-  const EMOJI_COUNT = window.innerWidth < 640 ? 12 : 20;
+  const EMOJI_COUNT = window.innerWidth < 640 ? 20 : 32;
   for (let i = 0; i < EMOJI_COUNT; i++) spawnEmoji();
 
   /* ---------------- State ---------------- */
@@ -347,7 +369,7 @@
   }
 
   function btnPrimary(label, id, extra) {
-    return `<button id="${id}" ${extra || ''} class="w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">${label}</button>`;
+    return `<button id="${id}" ${extra || ''} class="btn-shine relative overflow-hidden w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"><span class="relative z-10">${label}</span></button>`;
   }
   function btnGhost(label, id, extra) {
     return `<button id="${id}" ${extra || ''} class="w-full rounded-xl border border-brand-light-primary dark:border-brand-dark-primary text-brand-light-primary dark:text-brand-dark-primary font-semibold py-3 hover:bg-brand-light-primary/5 dark:hover:bg-brand-dark-primary/10 transition-colors active:scale-[0.98]">${label}</button>`;
@@ -421,7 +443,7 @@
       state.people.forEach(p => p.name = p.name.trim());
       state.step = 1;
       saveState();
-      render();
+      render(true);
     });
 
     if (count === 0) {
@@ -454,12 +476,12 @@
       <div id="expenses-error" class="hidden text-sm text-rose-500 mt-3"></div>
       <div class="flex gap-2 mt-5">
         <button id="expenses-back" class="w-1/3 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">← Atrás</button>
-        <div class="flex-1">${btnPrimary('Calcular 🧮', 'expenses-next')}</div>
+        <div class="flex-1">${btnPrimary('Calcular', 'expenses-next')}</div>
       </div>
     `;
 
     document.getElementById('add-expense').addEventListener('click', () => addExpense(false));
-    document.getElementById('expenses-back').addEventListener('click', () => { state.step = 0; saveState(); render(); });
+    document.getElementById('expenses-back').addEventListener('click', () => { state.step = 0; saveState(); render(true); });
     document.getElementById('expenses-next').addEventListener('click', onCalculate);
 
     bindExpenseCardEvents();
@@ -757,7 +779,7 @@
     saveState();
     state.step = 2;
     saveState();
-    render();
+    render(true);
   }
 
   /* ---------------- Cálculo de deudas ---------------- */
@@ -859,12 +881,12 @@
       </div>
     `;
 
-    document.getElementById('results-back').addEventListener('click', () => { state.step = 1; saveState(); render(); });
+    document.getElementById('results-back').addEventListener('click', () => { state.step = 1; saveState(); render(true); });
     document.getElementById('results-restart').addEventListener('click', () => {
       if (confirm('¿Seguro que quieres borrar todo y empezar de nuevo?')) {
         state = defaultState();
         saveState();
-        render();
+        render(true);
       }
     });
   }
@@ -875,12 +897,19 @@
   }
 
   /* ---------------- Router ---------------- */
-  function render() {
+  // scrollToTop: solo se pide true al cambiar de paso (Continuar, Calcular,
+  // Atrás...) para que el resultado quede a la vista de inmediato — no se usa
+  // en refrescos dentro del mismo paso (como cambiar de moneda) para no
+  // interrumpir al usuario mientras edita.
+  function render(scrollToTop) {
     try {
       renderProgress();
       if (state.step === 0) renderStepPeople();
       else if (state.step === 1) renderStepExpenses();
       else renderStepResults();
+      if (scrollToTop) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } catch (err) {
       // Red de seguridad: si algo truena al dibujar la pantalla, mostramos un
       // mensaje recuperable en vez de dejar la página en blanco.
