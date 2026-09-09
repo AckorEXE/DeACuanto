@@ -339,6 +339,14 @@
     const p = state.people.find(p => p.id === id);
     return p ? p.name : '???';
   }
+  // Normaliza a "tipo oración": la primera letra en mayúscula, el resto tal
+  // cual lo escribió la persona (así "pitt" -> "Pitt" pero no se toca algo
+  // como "McDonald's" si alguien lo escribe con esa mayúscula a propósito).
+  function sentenceCase(str) {
+    const trimmed = String(str || '').trim();
+    if (!trimmed) return trimmed;
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+  }
 
   /* ---------------- Progress dots ---------------- */
   function renderProgress() {
@@ -378,7 +386,7 @@
       <div class="flex items-center gap-2">
         <span class="w-7 h-7 shrink-0 rounded-full bg-brand-light-primary/10 dark:bg-brand-dark-primary/15 text-brand-light-primary dark:text-brand-dark-primary grid place-items-center text-xs font-bold">${i + 1}</span>
         <input data-person-id="${p.id}" type="text" maxlength="16" value="${escapeHtml(p.name)}" placeholder="Nombre de la persona ${i + 1}"
-          class="person-input flex-1 min-w-0 rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
+          class="person-input flex-1 min-w-0 rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
         <button data-remove-person="${p.id}" class="w-10 h-10 shrink-0 rounded-full grid place-items-center border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext text-base font-bold hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-300 dark:hover:border-rose-900 active:scale-95 transition-colors" aria-label="Eliminar persona">✕</button>
       </div>
     `).join('');
@@ -423,6 +431,19 @@
         if (p) p.name = inp.value;
         saveState();
       });
+      // La mayúscula inicial se aplica al salir del campo (no mientras se
+      // escribe) para no mover el cursor a media palabra.
+      inp.addEventListener('blur', () => {
+        const pid = inp.getAttribute('data-person-id');
+        const p = state.people.find(p => p.id === pid);
+        if (!p) return;
+        const normalized = sentenceCase(p.name);
+        if (normalized !== p.name) {
+          p.name = normalized;
+          inp.value = normalized;
+          saveState();
+        }
+      });
     });
 
     document.getElementById('people-next').addEventListener('click', () => {
@@ -438,7 +459,7 @@
         errorEl.classList.remove('hidden');
         return;
       }
-      state.people.forEach(p => p.name = p.name.trim());
+      state.people.forEach(p => p.name = sentenceCase(p.name));
       state.step = 1;
       saveState();
       render(true);
@@ -502,7 +523,7 @@
     const payerChips = state.people.map(p => {
       const checked = exp.payers.some(x => x.personId === p.id);
       return `
-        <label class="payer-chip cursor-pointer select-none px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${checked
+        <label class="payer-chip cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${checked
           ? 'bg-brand-light-primary dark:bg-brand-dark-primary text-white border-brand-light-primary dark:border-brand-dark-primary'
           : 'bg-transparent text-brand-light-subtext dark:text-brand-dark-subtext border-brand-light-border dark:border-brand-dark-border'}">
           <input type="checkbox" class="hidden payer-checkbox" data-expense-id="${exp.id}" data-person-id="${p.id}" ${checked ? 'checked' : ''} />
@@ -516,16 +537,16 @@
       const diff = Math.round((totalAmt - sum) * 100) / 100;
       const rows = exp.payers.map(x => `
         <div class="flex items-center gap-2">
-          <span class="text-xs w-24 truncate">${escapeHtml(personName(x.personId))}</span>
+          <span class="text-sm w-24 truncate">${escapeHtml(personName(x.personId))}</span>
           <input type="number" inputmode="decimal" min="0" step="0.01" data-payer-amount data-expense-id="${exp.id}" data-person-id="${x.personId}" value="${x.amount}" placeholder="ej. 80"
-            class="flex-1 min-w-0 rounded-lg border border-brand-light-border dark:border-brand-dark-border bg-transparent px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
+            class="flex-1 min-w-0 rounded-lg border border-brand-light-border dark:border-brand-dark-border bg-transparent px-2.5 py-1.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
         </div>`).join('');
       payerAmountsHtml = `
         <div class="mt-2 space-y-1.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] p-2.5">
           ${rows}
           <div class="flex items-center justify-between pt-1">
-            <button data-split-equal="${exp.id}" class="text-[11px] font-semibold text-brand-light-primary dark:text-brand-dark-primary hover:underline">Dividir en partes iguales</button>
-            <span data-payer-diff="${exp.id}" class="text-[11px] font-medium ${Math.abs(diff) < 0.01 ? 'text-brand-light-primary dark:text-brand-dark-primary' : 'text-brand-light-subtext dark:text-brand-dark-subtext'}">
+            <button data-split-equal="${exp.id}" class="text-sm font-semibold text-brand-light-primary dark:text-brand-dark-primary hover:underline">Dividir en partes iguales</button>
+            <span data-payer-diff="${exp.id}" class="text-sm font-medium ${Math.abs(diff) < 0.01 ? 'text-brand-light-primary dark:text-brand-dark-primary' : 'text-brand-light-subtext dark:text-brand-dark-subtext'}">
               ${Math.abs(diff) < 0.01 ? '✓ Cuadra con el total' : (diff > 0 ? `Falta asignar ${fmt(diff)}` : `Sobran ${fmt(-diff)}`)}
             </span>
           </div>
@@ -535,7 +556,7 @@
     const participantChips = state.people.map(p => {
       const checked = exp.participants.includes(p.id);
       return `
-        <label class="participant-chip cursor-pointer select-none px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${checked
+        <label class="participant-chip cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${checked
           ? 'bg-brand-light-primary dark:bg-brand-dark-primary text-white border-brand-light-primary dark:border-brand-dark-primary'
           : 'bg-transparent text-brand-light-subtext dark:text-brand-dark-subtext border-brand-light-border dark:border-brand-dark-border'}">
           <input type="checkbox" class="hidden participant-checkbox" data-expense-id="${exp.id}" data-person-id="${p.id}" ${checked ? 'checked' : ''} />
@@ -546,30 +567,30 @@
     return `
       <div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm relative" data-expense-card="${exp.id}">
         <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext">Gasto ${idx + 1}</span>
+          <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext">Gasto ${idx + 1}</span>
           ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="Eliminar gasto">✕ Quitar</button>` : ''}
         </div>
         <div class="space-y-3">
           <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="Nombre del gasto (ej. Carne, Cerveza...)"
-            class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
+            class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
           <div>
-            <label class="block text-xs text-brand-light-subtext dark:text-brand-dark-subtext mb-1">Monto total (${getCurrency().code})</label>
+            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1">Monto total (${getCurrency().code})</label>
             <input data-expense-amount="${exp.id}" type="number" inputmode="decimal" min="0" step="0.01" value="${exp.amount}" placeholder="0"
-              class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
+              class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
           </div>
           <div>
-            <label class="block text-xs text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">¿Quién pagó? <span class="font-normal opacity-70">(marca a todos los que pusieron dinero)</span></label>
+            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">¿Quién pagó? <span class="font-normal opacity-70">(marca a todos los que pusieron dinero)</span></label>
             <div class="flex flex-wrap gap-1.5">
               ${payerChips}
-              <button data-toggle-all-payers="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-xs font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">Todos</button>
+              <button data-toggle-all-payers="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">Todos</button>
             </div>
             ${payerAmountsHtml}
           </div>
           <div>
-            <label class="block text-xs text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">¿Entre quiénes se reparte? <span class="font-normal opacity-70">(se divide en partes iguales entre los marcados)</span></label>
+            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">¿Entre quiénes se reparte? <span class="font-normal opacity-70">(se divide en partes iguales entre los marcados)</span></label>
             <div class="flex flex-wrap gap-1.5">
               ${participantChips}
-              <button data-toggle-all-participants="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-xs font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">Todos</button>
+              <button data-toggle-all-participants="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">Todos</button>
             </div>
           </div>
         </div>
@@ -593,6 +614,17 @@
         if (inp.value.length > 20) inp.value = inp.value.slice(0, 20);
         if (exp) exp.name = inp.value;
         saveState();
+      });
+      inp.addEventListener('blur', () => {
+        const eid = inp.getAttribute('data-expense-name');
+        const exp = state.expenses.find(e => e.id === eid);
+        if (!exp) return;
+        const normalized = sentenceCase(exp.name);
+        if (normalized !== exp.name) {
+          exp.name = normalized;
+          inp.value = normalized;
+          saveState();
+        }
       });
     });
     document.querySelectorAll('[data-expense-amount]').forEach(inp => {
@@ -796,8 +828,9 @@
   function onCalculate() {
     const errorEl = document.getElementById('expenses-error');
     for (const exp of state.expenses) {
+      exp.name = sentenceCase(exp.name);
       const amt = parseFloat(exp.amount);
-      if (!exp.name.trim()) { errorEl.textContent = 'Ponle nombre a todos los gastos.'; errorEl.classList.remove('hidden'); return; }
+      if (!exp.name) { errorEl.textContent = 'Ponle nombre a todos los gastos.'; errorEl.classList.remove('hidden'); return; }
       if (!amt || amt <= 0) { errorEl.textContent = `El gasto "${exp.name}" necesita un monto válido mayor a 0.`; errorEl.classList.remove('hidden'); return; }
       if (!exp.payers || exp.payers.length === 0) { errorEl.textContent = `Falta indicar quién pagó "${exp.name}".`; errorEl.classList.remove('hidden'); return; }
       if (exp.payers.length === 1) {
@@ -900,7 +933,7 @@
       <div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm mb-4">
         <div class="flex items-center justify-between mb-1">
           <h2 class="text-lg font-bold">Resultado</h2>
-          <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-light-primary/10 dark:bg-brand-dark-primary/15 text-brand-light-primary dark:text-brand-dark-primary">Total: ${fmt(total)}</span>
+          <span class="text-sm font-semibold px-2.5 py-1 rounded-full bg-brand-light-primary/10 dark:bg-brand-dark-primary/15 text-brand-light-primary dark:text-brand-dark-primary">Total: ${fmt(total)}</span>
         </div>
         <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-3">Así quedan las cuentas, con el menor número de pagos posible.</p>
         <div class="space-y-2.5 mb-1">${settlementRows}</div>
