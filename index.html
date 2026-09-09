@@ -77,10 +77,41 @@
   }
   .btn-shake { animation: btnShake 3s ease-in-out infinite; }
   .btn-shake:active { animation-play-state: paused; }
+  /* Destello que recorre el botón de compartir de vez en cuando. */
+  @keyframes btnShine {
+    0%, 45% { left: -60%; }
+    65%, 100% { left: 130%; }
+  }
+  .btn-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.4), transparent);
+    transform: skewX(-18deg);
+    animation: btnShine 3.2s ease-in-out infinite;
+    pointer-events: none;
+  }
   .card-transition { transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.4); border-radius: 999px; }
   .step-enter, .fade-in { animation: fadeIn 0.4s ease-out both; }
+  /* Aviso pequeño abajo (p. ej. "copiado al portapapeles") que aparece y
+     desaparece solo, sin interrumpir con un alert(). */
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%) translateY(12px);
+    opacity: 0;
+    transition: opacity .25s ease, transform .25s ease;
+    z-index: 50;
+    max-width: calc(100vw - 40px);
+    text-align: center;
+  }
+  #toast.toast-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button { opacity: 1; }
   /* iOS Safari hace zoom automático al enfocar un campo con texto menor a
@@ -108,6 +139,9 @@
     </button>
   </div>
 
+  <!-- Aviso flotante (toast) -->
+  <div id="toast" class="hidden rounded-xl bg-brand-light-text dark:bg-brand-dark-card text-white dark:text-brand-dark-text text-sm font-medium px-4 py-2.5 shadow-lg"></div>
+
   <!-- Skeleton loader -->
   <div id="skeleton" class="relative z-10 min-h-screen flex flex-col items-center justify-center px-5">
     <div class="w-full max-w-md">
@@ -125,7 +159,7 @@
   </div>
 
   <!-- App root -->
-  <main id="app" class="relative z-10 min-h-screen hidden flex-col items-center px-5 pb-16 pt-16">
+  <main id="app" class="relative z-10 min-h-screen hidden flex-col items-center px-5 pb-16 pt-24">
     <div class="w-full max-w-md">
 
       <!-- Header -->
@@ -133,7 +167,7 @@
         <span class="text-3xl">🤑</span>
         <h1 class="font-hand text-4xl tracking-tight text-brand-light-primary dark:text-brand-dark-primary">¿De A Cuánto?</h1>
       </header>
-      <p class="text-center text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-6 fade-in">Divide los gastos de tu salida sin dolores de cabeza</p>
+      <p class="text-center text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-6 fade-in">Dividan los gastos de su salida sin dolores de cabeza</p>
 
       <!-- Progress -->
       <div id="progress" class="flex items-center justify-center gap-2 mb-6"></div>
@@ -272,7 +306,7 @@
     el.style.setProperty('--emoji-opacity', opacity);
     emojiBg.appendChild(el);
   }
-  const EMOJI_COUNT = window.innerWidth < 640 ? 20 : 32;
+  const EMOJI_COUNT = window.innerWidth < 640 ? 26 : 42; // ~30% más que antes
   for (let i = 0; i < EMOJI_COUNT; i++) spawnEmoji();
 
   /* ---------------- State ---------------- */
@@ -410,8 +444,13 @@
     return `<div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm ${extraClass || ''}">${innerHtml}</div>`;
   }
 
-  function btnPrimary(label, id, extra) {
-    return `<button id="${id}" ${extra || ''} class="btn-shake w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">${label}</button>`;
+  // effect: 'shake' (default, botones de avanzar de paso) o 'shine' (el de
+  // compartir, que no se mueve — solo un destello sutil).
+  function btnPrimary(label, id, extra, effect) {
+    const isShine = effect === 'shine';
+    const effectClass = isShine ? 'btn-shine relative overflow-hidden' : 'btn-shake';
+    const inner = isShine ? `<span class="relative z-10">${label}</span>` : label;
+    return `<button id="${id}" ${extra || ''} class="${effectClass} w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">${inner}</button>`;
   }
   function btnGhost(label, id, extra) {
     return `<button id="${id}" ${extra || ''} class="w-full rounded-xl border border-brand-light-primary dark:border-brand-dark-primary text-brand-light-primary dark:text-brand-dark-primary font-semibold py-3 hover:bg-brand-light-primary/5 dark:hover:bg-brand-dark-primary/10 transition-colors active:scale-[0.98]">${label}</button>`;
@@ -436,7 +475,7 @@
       <div id="people-list" class="space-y-2.5 mb-3">${rows}</div>
       <button id="add-person" class="w-full rounded-xl border border-dashed border-brand-light-border dark:border-brand-dark-border text-sm font-medium text-brand-light-subtext dark:text-brand-dark-subtext py-2.5 hover:border-brand-light-primary dark:hover:border-brand-dark-primary hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors mb-4">+ Añadir persona</button>
       <div id="people-error" class="hidden text-sm text-rose-500 mb-3"></div>
-      ${btnPrimary('Continuar →', 'people-next')}
+      ${btnPrimary('Continuar', 'people-next')}
     `);
 
     document.getElementById('add-person').addEventListener('click', () => {
@@ -539,7 +578,7 @@
       <button id="add-expense" class="w-full mt-4 rounded-xl border border-dashed border-brand-light-border dark:border-brand-dark-border text-sm font-medium text-brand-light-subtext dark:text-brand-dark-subtext py-2.5 hover:border-brand-light-primary dark:hover:border-brand-dark-primary hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors">+ Añadir gasto</button>
       <div id="expenses-error" class="hidden text-sm text-rose-500 mt-3"></div>
       <div class="flex gap-2 mt-5">
-        <button id="expenses-back" class="w-1/3 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">← Atrás</button>
+        <button id="expenses-back" class="w-1/3 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Atrás</button>
         <div class="flex-1">${btnPrimary('Calcular', 'expenses-next')}</div>
       </div>
     `;
@@ -644,12 +683,9 @@
 
     return `
       <div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm relative" data-expense-card="${exp.id}">
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center justify-between mb-3 -m-1 p-1 rounded-xl ${state.expenses.length > 1 ? 'cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors' : ''}" ${state.expenses.length > 1 ? `data-collapse-expense="${exp.id}" aria-label="Minimizar gasto"` : ''}>
           <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext">Gasto ${idx + 1}</span>
-          <div class="flex items-center gap-3">
-            ${state.expenses.length > 1 ? `<button data-collapse-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors text-sm" aria-label="Minimizar gasto">▴ Minimizar</button>` : ''}
-            ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="Eliminar gasto">✕ Quitar</button>` : ''}
-          </div>
+          ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="Eliminar gasto">Eliminar</button>` : ''}
         </div>
         <div class="space-y-3">
           <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="Nombre del gasto (ej. Carne, Cerveza...)"
@@ -681,7 +717,8 @@
 
   function bindExpenseCardEvents() {
     document.querySelectorAll('[data-remove-expense]').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (evt) => {
+        evt.stopPropagation(); // no debe disparar también el "minimizar" del header
         const eid = btn.getAttribute('data-remove-expense');
         state.expenses = state.expenses.filter(e => e.id !== eid);
         collapsedExpenseIds.delete(eid);
@@ -991,6 +1028,33 @@
     return { balances, transactions };
   }
 
+  /* ---------------- Compartir resultado ---------------- */
+  function buildShareText(total, transactions) {
+    const lines = ['🤑 *¿De A Cuánto?*', `*Resultado Total:* ${fmt(total)}`, ''];
+    if (transactions.length > 0) {
+      transactions.forEach(t => {
+        lines.push(`💸 *${personName(t.from)}* le paga a *${personName(t.to)}*: ${fmt(t.amount)}`);
+      });
+    } else {
+      lines.push('🎉 *¡Todos están a mano! No hay pagos pendientes.*');
+    }
+    lines.push('', '*Calculado con:* de-a-cuanto.vercel.app');
+    return lines.join('\n');
+  }
+  let toastTimer = null;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    requestAnimationFrame(() => el.classList.add('toast-visible'));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      el.classList.remove('toast-visible');
+      setTimeout(() => el.classList.add('hidden'), 300);
+    }, 2600);
+  }
+
   /* ---------------- Step 2: Resultados ---------------- */
   function renderStepResults() {
     const container = document.getElementById('step-content');
@@ -1038,12 +1102,34 @@
         <div class="mt-3">${balanceRows}</div>
       </details>
 
+      <div class="mb-2">${btnPrimary('📤 Compartir resultado', 'results-share', null, 'shine')}</div>
       <div class="flex gap-2">
-        <button id="results-back" class="w-1/2 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">← Editar gastos</button>
+        <button id="results-back" class="w-1/2 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Editar gastos</button>
         <button id="results-restart" class="btn-shake w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-500/5 text-rose-500 font-semibold py-3 hover:bg-rose-500/10 active:scale-[0.98] transition-colors">Empezar de nuevo</button>
       </div>
     `;
 
+    document.getElementById('results-share').addEventListener('click', async () => {
+      const text = buildShareText(total, transactions);
+      // navigator.share abre el menú nativo de compartir del sistema, para
+      // que tú elijas WhatsApp, Telegram, mensajes, lo que sea — es lo mejor
+      // en celular. Si el navegador no lo soporta (la mayoría de escritorio),
+      // se copia el texto al portapapeles como respaldo.
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: '¿De A Cuánto?', text });
+        } catch (err) {
+          // El usuario canceló el share o falló silenciosamente: no hacer nada.
+        }
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Resultado copiado — pégalo donde quieras 📋');
+      } catch (err) {
+        showToast('No se pudo copiar automáticamente 😕');
+      }
+    });
     document.getElementById('results-back').addEventListener('click', () => { state.step = 1; saveState(); render(true); });
     document.getElementById('results-restart').addEventListener('click', () => {
       if (confirm('¿Seguro que quieres borrar todo y empezar de nuevo?')) {
