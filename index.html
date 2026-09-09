@@ -382,7 +382,7 @@
     const rows = state.people.map((p, i) => `
       <div class="flex items-center gap-2">
         <span class="w-7 h-7 shrink-0 rounded-full bg-brand-light-primary/10 dark:bg-brand-dark-primary/15 text-brand-light-primary dark:text-brand-dark-primary grid place-items-center text-xs font-bold">${i + 1}</span>
-        <input data-person-id="${p.id}" type="text" value="${escapeHtml(p.name)}" placeholder="Nombre de la persona ${i + 1}"
+        <input data-person-id="${p.id}" type="text" maxlength="16" value="${escapeHtml(p.name)}" placeholder="Nombre de la persona ${i + 1}"
           class="person-input flex-1 min-w-0 rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
         <button data-remove-person="${p.id}" class="w-10 h-10 shrink-0 rounded-full grid place-items-center border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext text-base font-bold hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-300 dark:hover:border-rose-900 active:scale-95 transition-colors" aria-label="Eliminar persona">✕</button>
       </div>
@@ -422,6 +422,9 @@
       inp.addEventListener('input', () => {
         const pid = inp.getAttribute('data-person-id');
         const p = state.people.find(p => p.id === pid);
+        // maxlength ya lo limita al escribir, pero por si acaso (pegar texto
+        // largo en navegadores que no lo respetan) también se recorta aquí.
+        if (inp.value.length > 16) inp.value = inp.value.slice(0, 16);
         if (p) p.name = inp.value;
         saveState();
       });
@@ -488,13 +491,15 @@
   }
 
   function addExpense(skipRender) {
-    const firstPayer = state.people[0] ? state.people[0].id : null;
     state.expenses.push({
       id: uid(),
       name: '',
       amount: '',
-      payers: firstPayer ? [{ personId: firstPayer, amount: '' }] : [],
-      participants: state.people.map(p => p.id),
+      // Sin nada preseleccionado (ni pagador ni participantes): que quede
+      // clarísimo que hay que marcarlo a propósito, y no parezca que
+      // "ya venía marcado" algo que el usuario no eligió.
+      payers: [],
+      participants: [],
     });
     saveState();
     renderStepExpenses();
@@ -554,7 +559,7 @@
           ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="Eliminar gasto">✕ Quitar</button>` : ''}
         </div>
         <div class="space-y-3">
-          <input data-expense-name="${exp.id}" type="text" value="${escapeHtml(exp.name)}" placeholder="Nombre del gasto (ej. Carne, Cerveza...)"
+          <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="Nombre del gasto (ej. Carne, Cerveza...)"
             class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
           <div>
             <label class="block text-xs text-brand-light-subtext dark:text-brand-dark-subtext mb-1">Monto total (${getCurrency().code})</label>
@@ -563,12 +568,18 @@
           </div>
           <div>
             <label class="block text-xs text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">¿Quién pagó? <span class="font-normal opacity-70">(marca a todos los que pusieron dinero)</span></label>
-            <div class="flex flex-wrap gap-1.5">${payerChips}</div>
+            <div class="flex flex-wrap gap-1.5">
+              ${payerChips}
+              <button data-toggle-all-payers="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-xs font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">Todos</button>
+            </div>
             ${payerAmountsHtml}
           </div>
           <div>
             <label class="block text-xs text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">¿Entre quiénes se reparte? <span class="font-normal opacity-70">(se divide en partes iguales entre los marcados)</span></label>
-            <div class="flex flex-wrap gap-1.5">${participantChips}</div>
+            <div class="flex flex-wrap gap-1.5">
+              ${participantChips}
+              <button data-toggle-all-participants="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-xs font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">Todos</button>
+            </div>
           </div>
         </div>
       </div>
@@ -588,6 +599,7 @@
       inp.addEventListener('input', () => {
         const eid = inp.getAttribute('data-expense-name');
         const exp = state.expenses.find(e => e.id === eid);
+        if (inp.value.length > 20) inp.value = inp.value.slice(0, 20);
         if (exp) exp.name = inp.value;
         saveState();
       });
@@ -663,6 +675,39 @@
         const exp = state.expenses.find(e => e.id === eid);
         if (!exp || exp.payers.length === 0) return;
         splitPayersEqually(exp);
+        saveState();
+        renderStepExpenses();
+      });
+    });
+    document.querySelectorAll('[data-toggle-all-participants]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const eid = btn.getAttribute('data-toggle-all-participants');
+        const exp = state.expenses.find(e => e.id === eid);
+        if (!exp) return;
+        // "Todos" alterna: si ya estaban todos marcados, los desmarca a
+        // todos de un tap; si no, los marca a todos.
+        const allSelected = state.people.length > 0 && state.people.every(p => exp.participants.includes(p.id));
+        exp.participants = allSelected ? [] : state.people.map(p => p.id);
+        saveState();
+        renderStepExpenses();
+      });
+    });
+    document.querySelectorAll('[data-toggle-all-payers]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const eid = btn.getAttribute('data-toggle-all-payers');
+        const exp = state.expenses.find(e => e.id === eid);
+        if (!exp) return;
+        const allSelected = state.people.length > 0 && state.people.every(p => exp.payers.some(x => x.personId === p.id));
+        if (allSelected) {
+          exp.payers = [];
+        } else if (state.people.length === 1) {
+          exp.payers = [{ personId: state.people[0].id, amount: exp.amount, auto: false }];
+        } else {
+          // Con varios pagadores se deja el monto en blanco (igual que al
+          // marcarlos uno por uno) para que el cálculo automático del resto
+          // pueda hacer su trabajo en cuanto se escriba algo.
+          exp.payers = state.people.map(p => ({ personId: p.id, amount: '', auto: false }));
+        }
         saveState();
         renderStepExpenses();
       });
