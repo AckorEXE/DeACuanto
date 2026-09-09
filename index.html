@@ -810,7 +810,7 @@
           ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="Eliminar gasto">Eliminar</button>` : ''}
         </div>
         <div class="space-y-3">
-          <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="Nombre del gasto (ej. Carne, Cerveza...)"
+          <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="(ej. Carne, Cerveza...)"
             class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
           <div>
             <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1">Monto total (${getCurrency().code})</label>
