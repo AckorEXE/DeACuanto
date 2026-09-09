@@ -352,6 +352,11 @@
   saveState(); // persiste de inmediato cualquier dato migrado de una versión anterior
   let uidCounter = Date.now();
   function uid() { return 'id' + (uidCounter++); }
+  // Gastos ya llenados que están minimizados a solo "Gasto N — nombre" para
+  // no llenar la pantalla cuando hay varios. Es solo un detalle visual (no
+  // se guarda), así que siempre arranca con todo expandido en una visita
+  // nueva o si recargas la página.
+  let collapsedExpenseIds = new Set();
 
   /* ---------------- Helpers ---------------- */
   // Formatea un monto para un <input>: sin decimales si es un número entero
@@ -431,7 +436,7 @@
       <div id="people-list" class="space-y-2.5 mb-3">${rows}</div>
       <button id="add-person" class="w-full rounded-xl border border-dashed border-brand-light-border dark:border-brand-dark-border text-sm font-medium text-brand-light-subtext dark:text-brand-dark-subtext py-2.5 hover:border-brand-light-primary dark:hover:border-brand-dark-primary hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors mb-4">+ Añadir persona</button>
       <div id="people-error" class="hidden text-sm text-rose-500 mb-3"></div>
-      ${btnPrimary('Continuar', 'people-next')}
+      ${btnPrimary('Continuar →', 'people-next')}
     `);
 
     document.getElementById('add-person').addEventListener('click', () => {
@@ -547,7 +552,11 @@
   }
 
   function addExpense(skipRender) {
-    state.expenses.push({
+    // Minimiza los gastos que ya había antes de meter el nuevo, para que la
+    // lista no crezca sin control — solo el que estás por llenar se queda
+    // abierto.
+    state.expenses.forEach(e => collapsedExpenseIds.add(e.id));
+    const newExpense = {
       id: uid(),
       name: '',
       amount: '',
@@ -556,13 +565,38 @@
       // "ya venía marcado" algo que el usuario no eligió.
       payers: [],
       participants: [],
-    });
+    };
+    state.expenses.push(newExpense);
     saveState();
     renderStepExpenses();
+    if (!skipRender) {
+      // Lleva la vista directo a la tarjeta nueva, igual que "Calcular" te
+      // manda arriba a ver el resultado — aquí te manda abajo a donde vas a
+      // seguir escribiendo.
+      const el = document.querySelector(`[data-expense-card="${newExpense.id}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   function renderExpenseCard(exp, idx) {
     const totalAmt = parseFloat(exp.amount) || 0;
+
+    if (collapsedExpenseIds.has(exp.id)) {
+      const nameDisplay = exp.name
+        ? escapeHtml(exp.name)
+        : '<span class="opacity-60 font-normal">Sin nombre</span>';
+      return `
+        <button type="button" data-expand-expense="${exp.id}" data-expense-card="${exp.id}" class="step-enter w-full text-left rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-4 shadow-sm flex items-center justify-between gap-3 hover:border-brand-light-primary dark:hover:border-brand-dark-primary transition-colors">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext shrink-0">Gasto ${idx + 1}</span>
+            <span class="text-sm font-semibold truncate">${nameDisplay}</span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${totalAmt > 0 ? `<span class="text-sm font-semibold text-brand-light-primary dark:text-brand-dark-primary">${fmt(totalAmt)}</span>` : ''}
+            <span class="text-brand-light-subtext dark:text-brand-dark-subtext text-xs">▾</span>
+          </div>
+        </button>`;
+    }
 
     const payerChips = state.people.map(p => {
       const checked = exp.payers.some(x => x.personId === p.id);
@@ -612,7 +646,10 @@
       <div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm relative" data-expense-card="${exp.id}">
         <div class="flex items-center justify-between mb-3">
           <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext">Gasto ${idx + 1}</span>
-          ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="Eliminar gasto">✕ Quitar</button>` : ''}
+          <div class="flex items-center gap-3">
+            ${state.expenses.length > 1 ? `<button data-collapse-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors text-sm" aria-label="Minimizar gasto">▴ Minimizar</button>` : ''}
+            ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="Eliminar gasto">✕ Quitar</button>` : ''}
+          </div>
         </div>
         <div class="space-y-3">
           <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="Nombre del gasto (ej. Carne, Cerveza...)"
@@ -647,7 +684,20 @@
       btn.addEventListener('click', () => {
         const eid = btn.getAttribute('data-remove-expense');
         state.expenses = state.expenses.filter(e => e.id !== eid);
+        collapsedExpenseIds.delete(eid);
         saveState();
+        renderStepExpenses();
+      });
+    });
+    document.querySelectorAll('[data-expand-expense]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        collapsedExpenseIds.delete(btn.getAttribute('data-expand-expense'));
+        renderStepExpenses();
+      });
+    });
+    document.querySelectorAll('[data-collapse-expense]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        collapsedExpenseIds.add(btn.getAttribute('data-collapse-expense'));
         renderStepExpenses();
       });
     });
