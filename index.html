@@ -167,7 +167,7 @@
         <span class="text-3xl">🤑</span>
         <h1 class="font-hand text-4xl tracking-tight text-brand-light-primary dark:text-brand-dark-primary">¿De A Cuánto?</h1>
       </header>
-      <p id="tagline" class="text-center text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-6 fade-in">Cuentas claras, amistades largas</p>
+      <p id="tagline" class="text-center text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-6 fade-in">Dividan los gastos de su salida sin dolores de cabeza</p>
 
       <!-- Progress -->
       <div id="progress" class="flex items-center justify-center gap-2 mb-6"></div>
@@ -344,7 +344,10 @@
       shareResult: '📤 Compartir resultado',
       editExpenses: 'Editar gastos',
       startOver: 'Empezar de nuevo',
-      confirmRestart: '¿Seguro que quieres borrar todo y empezar de nuevo?',
+      restartConfirmTitle: '¿Seguro que quieres empezar de nuevo?',
+      restartConfirmYes: 'Estoy seguro',
+      restartConfirmBody: 'Se borrará todo lo que capturaste: personas, gastos y el resultado.',
+      cancel: 'Cancelar',
       shareTotal: (v) => `*Resultado Total:* ${v}`,
       calculatedWith: '*Calculado con:* https://de-a-cuanto.vercel.app/',
       toastCopied: 'Resultado copiado — pégalo donde quieras 📋',
@@ -356,7 +359,7 @@
       errorBody: 'Puede que tu progreso guardado haya quedado en un formato viejo. Empecemos de nuevo para arreglarlo.',
     },
     en: {
-      tagline: "Clear accounts, long friendships",
+      tagline: 'Short accounts make long friends',
       stepPeople: 'People', stepExpenses: 'Expenses', stepResult: 'Result',
       currencyAria: 'Change currency', themeAria: 'Change theme',
       peopleTitle: 'How many people are there?',
@@ -404,7 +407,10 @@
       shareResult: '📤 Share result',
       editExpenses: 'Edit expenses',
       startOver: 'Start over',
-      confirmRestart: 'Are you sure you want to clear everything and start over?',
+      restartConfirmTitle: 'Are you sure you want to start over?',
+      restartConfirmYes: "I'm sure",
+      restartConfirmBody: "Everything you've entered will be deleted: people, expenses, and the result.",
+      cancel: 'Cancel',
       shareTotal: (v) => `*Total result:* ${v}`,
       calculatedWith: '*Calculated with:* https://de-a-cuanto.vercel.app/',
       toastCopied: 'Result copied — paste it wherever you like 📋',
@@ -416,7 +422,7 @@
       errorBody: "Your saved progress may be in an old format. Let's start fresh to fix it.",
     },
     ja: {
-      tagline: '帳簿が明確なら、友情は長続きする',
+      tagline: 'はっきり精算、長く続く友情',
       stepPeople: '参加者', stepExpenses: '支出', stepResult: '結果',
       currencyAria: '通貨を変更', themeAria: 'テーマを切り替え',
       peopleTitle: '何人いますか？',
@@ -464,7 +470,10 @@
       shareResult: '📤 結果を共有',
       editExpenses: '支出を編集',
       startOver: '最初からやり直す',
-      confirmRestart: '本当にすべて削除して最初からやり直しますか？',
+      restartConfirmTitle: '本当に最初からやり直しますか？',
+      restartConfirmYes: '確定',
+      restartConfirmBody: '入力した参加者、支出、結果がすべて削除されます。',
+      cancel: 'キャンセル',
       shareTotal: (v) => `*合計金額：* ${v}`,
       calculatedWith: '*計算ツール：* https://de-a-cuanto.vercel.app/',
       toastCopied: '結果をコピーしました — 好きな場所に貼り付けてください 📋',
@@ -524,7 +533,10 @@
       shareResult: '📤 Compartilhar resultado',
       editExpenses: 'Editar despesas',
       startOver: 'Começar de novo',
-      confirmRestart: 'Tem certeza de que quer apagar tudo e começar de novo?',
+      restartConfirmTitle: 'Tem certeza de que quer começar de novo?',
+      restartConfirmYes: 'Certeza',
+      restartConfirmBody: 'Tudo o que você inseriu será apagado: pessoas, despesas e o resultado.',
+      cancel: 'Cancelar',
       shareTotal: (v) => `*Resultado total:* ${v}`,
       calculatedWith: '*Calculado com:* https://de-a-cuanto.vercel.app/',
       toastCopied: 'Resultado copiado — cole onde quiser 📋',
@@ -967,11 +979,11 @@
           <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext">${t('expenseLabel', idx + 1)}</span>
           ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="${t('removeExpenseAria')}">${t('removeExpense')}</button>` : ''}
         </div>
-        <div class="space-y-3">
+        <div class="space-y-4">
           <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="${t('expenseNamePlaceholder')}"
             class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
           <div>
-            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1">${t('totalAmountLabel', getCurrency().code)}</label>
+            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">${t('totalAmountLabel', getCurrency().code)}</label>
             <input data-expense-amount="${exp.id}" type="number" inputmode="decimal" min="0" step="0.01" value="${exp.amount}" placeholder="0"
               class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
           </div>
@@ -1436,12 +1448,27 @@
       }
     });
     document.getElementById('results-back').addEventListener('click', () => { state.step = 1; saveState(); render(true); });
-    document.getElementById('results-restart').addEventListener('click', () => {
-      if (confirm(t('confirmRestart'))) {
-        state = defaultState();
-        saveState();
-        render(true);
-      }
+    document.getElementById('results-restart').addEventListener('click', renderRestartConfirm);
+  }
+
+  // En vez de un confirm() nativo del navegador (que rompe con el estilo de
+  // toda la app), "Empezar de nuevo" muestra una tarjeta de confirmación —
+  // la misma idea que "¿Seguimos donde quedaste?" — antes de borrar nada.
+  function renderRestartConfirm() {
+    const container = document.getElementById('step-content');
+    container.innerHTML = card(`
+      <h2 class="text-lg font-bold mb-1">${t('restartConfirmTitle')}</h2>
+      <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">${t('restartConfirmBody')}</p>
+      <div class="flex gap-2">
+        <button id="restart-cancel" class="w-1/2 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">${t('cancel')}</button>
+        <button id="restart-confirm" class="w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-500/5 text-rose-500 font-semibold py-3 hover:bg-rose-500/10 active:scale-[0.98] transition-colors">${t('restartConfirmYes')}</button>
+      </div>
+    `);
+    document.getElementById('restart-cancel').addEventListener('click', () => { renderStepResults(); });
+    document.getElementById('restart-confirm').addEventListener('click', () => {
+      state = defaultState();
+      saveState();
+      render(true);
     });
   }
 
