@@ -4,20 +4,20 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>¿De A Cuánto? — Divide gastos fácil</title>
-<meta name="description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
+<meta name="description" content="Cuentas claras, amistades largas. Dividan sus gastos sin complicaciones." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🤑%3C/text%3E%3C/svg%3E" />
 <!-- Vista previa al compartir el link (WhatsApp, redes, etc.). og-image.png
      vive junto a index.html y se sirve como archivo estático. -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://de-a-cuanto.vercel.app/" />
 <meta property="og:title" content="¿De A Cuánto? — Divide gastos fácil" />
-<meta property="og:description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
+<meta property="og:description" content="Cuentas claras, amistades largas. Dividan sus gastos sin complicaciones." />
 <meta property="og:image" content="https://de-a-cuanto.vercel.app/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="¿De A Cuánto? — Divide gastos fácil" />
-<meta name="twitter:description" content="Divide los gastos de tu salida entre amigos y descubre quién le debe a quién." />
+<meta name="twitter:description" content="Cuentas claras, amistades largas. Dividan sus gastos sin complicaciones." />
 <meta name="twitter:image" content="https://de-a-cuanto.vercel.app/og-image.png" />
 <!-- Tailwind is precompiled to styles.css at build time (see build.sh) instead of
      loaded from the cdn.tailwindcss.com Play CDN. The Play CDN needs to reach an
@@ -167,7 +167,7 @@
         <span class="text-3xl">🤑</span>
         <h1 class="font-hand text-4xl tracking-tight text-brand-light-primary dark:text-brand-dark-primary">¿De A Cuánto?</h1>
       </header>
-      <p class="text-center text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-6 fade-in">Dividan los gastos de su salida sin dolores de cabeza</p>
+      <p id="tagline" class="text-center text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-6 fade-in">Cuentas claras, amistades largas</p>
 
       <!-- Progress -->
       <div id="progress" class="flex items-center justify-center gap-2 mb-6"></div>
@@ -236,17 +236,21 @@
   window.addEventListener('pageshow', () => syncToSystemTheme(currentSystemTheme()));
 
   /* ---------------- Moneda ---------------- */
+  // lang: idioma en el que se muestra TODA la app cuando esa moneda está
+  // seleccionada. Las monedas de países hispanohablantes (más el euro) se
+  // quedan en español; dólar (US/CA) y libra pasan a inglés; yen a japonés;
+  // real brasileño a portugués — el idioma real de cada país/moneda.
   const CURRENCIES = [
-    { code: 'MXN', locale: 'es-MX', flag: '🇲🇽', name: 'Peso mexicano' },
-    { code: 'USD', locale: 'en-US', flag: '🇺🇸', name: 'Dólar estadounidense' },
-    { code: 'EUR', locale: 'de-DE', flag: '🇪🇺', name: 'Euro' },
-    { code: 'GBP', locale: 'en-GB', flag: '🇬🇧', name: 'Libra esterlina' },
-    { code: 'JPY', locale: 'ja-JP', flag: '🇯🇵', name: 'Yen japonés' },
-    { code: 'CAD', locale: 'en-CA', flag: '🇨🇦', name: 'Dólar canadiense' },
-    { code: 'BRL', locale: 'pt-BR', flag: '🇧🇷', name: 'Real brasileño' },
-    { code: 'ARS', locale: 'es-AR', flag: '🇦🇷', name: 'Peso argentino' },
-    { code: 'COP', locale: 'es-CO', flag: '🇨🇴', name: 'Peso colombiano' },
-    { code: 'CLP', locale: 'es-CL', flag: '🇨🇱', name: 'Peso chileno' },
+    { code: 'MXN', locale: 'es-MX', flag: '🇲🇽', lang: 'es', name: { es: 'Peso mexicano', en: 'Mexican peso', ja: 'メキシコペソ', pt: 'Peso mexicano' } },
+    { code: 'USD', locale: 'en-US', flag: '🇺🇸', lang: 'en', name: { es: 'Dólar estadounidense', en: 'US dollar', ja: '米ドル', pt: 'Dólar americano' } },
+    { code: 'EUR', locale: 'de-DE', flag: '🇪🇺', lang: 'es', name: { es: 'Euro', en: 'Euro', ja: 'ユーロ', pt: 'Euro' } },
+    { code: 'GBP', locale: 'en-GB', flag: '🇬🇧', lang: 'en', name: { es: 'Libra esterlina', en: 'British pound', ja: '英ポンド', pt: 'Libra esterlina' } },
+    { code: 'JPY', locale: 'ja-JP', flag: '🇯🇵', lang: 'ja', name: { es: 'Yen japonés', en: 'Japanese yen', ja: '日本円', pt: 'Iene japonês' } },
+    { code: 'CAD', locale: 'en-CA', flag: '🇨🇦', lang: 'en', name: { es: 'Dólar canadiense', en: 'Canadian dollar', ja: 'カナダドル', pt: 'Dólar canadense' } },
+    { code: 'BRL', locale: 'pt-BR', flag: '🇧🇷', lang: 'pt', name: { es: 'Real brasileño', en: 'Brazilian real', ja: 'ブラジルレアル', pt: 'Real brasileiro' } },
+    { code: 'ARS', locale: 'es-AR', flag: '🇦🇷', lang: 'es', name: { es: 'Peso argentino', en: 'Argentine peso', ja: 'アルゼンチンペソ', pt: 'Peso argentino' } },
+    { code: 'COP', locale: 'es-CO', flag: '🇨🇴', lang: 'es', name: { es: 'Peso colombiano', en: 'Colombian peso', ja: 'コロンビアペソ', pt: 'Peso colombiano' } },
+    { code: 'CLP', locale: 'es-CL', flag: '🇨🇱', lang: 'es', name: { es: 'Peso chileno', en: 'Chilean peso', ja: 'チリペソ', pt: 'Peso chileno' } },
   ];
   function getInitialCurrency() {
     try {
@@ -257,11 +261,13 @@
   }
   let currency = getInitialCurrency();
   function getCurrency() { return CURRENCIES.find(c => c.code === currency) || CURRENCIES[0]; }
+  // Idioma actual de toda la app: lo decide la moneda seleccionada.
+  function lang() { return getCurrency().lang || 'es'; }
   function renderCurrencyMenu() {
     const menu = document.getElementById('currency-menu');
     menu.innerHTML = CURRENCIES.map(c => `
       <button data-currency="${c.code}" class="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-sm text-left hover:bg-black/5 dark:hover:bg-white/10 transition-colors ${c.code === currency ? 'font-bold text-brand-light-primary dark:text-brand-dark-primary' : ''}">
-        <span class="text-base">${c.flag}</span><span class="flex-1 min-w-0 truncate">${c.name}</span><span class="text-xs opacity-60">${c.code}</span>
+        <span class="text-base">${c.flag}</span><span class="flex-1 min-w-0 truncate">${c.name[lang()]}</span><span class="text-xs opacity-60">${c.code}</span>
       </button>`).join('');
     menu.querySelectorAll('[data-currency]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -269,6 +275,7 @@
         try { localStorage.setItem('deacuanto:currency', currency); } catch (e) {}
         document.getElementById('currency-flag').textContent = getCurrency().flag;
         document.getElementById('currency-menu').classList.add('hidden');
+        applyStaticTexts();
         renderCurrencyMenu();
         render();
       });
@@ -282,6 +289,271 @@
   });
   document.addEventListener('click', () => document.getElementById('currency-menu').classList.add('hidden'));
   document.getElementById('currency-menu').addEventListener('click', (e) => e.stopPropagation());
+
+  /* ---------------- Traducciones ---------------- */
+  // Toda la app cambia de idioma según la moneda elegida (ver CURRENCIES).
+  // Los valores pueden ser texto fijo o una función cuando necesitan datos
+  // (un número, un nombre) insertados en el mensaje.
+  const I18N = {
+    es: {
+      tagline: 'Cuentas claras, amistades largas',
+      stepPeople: 'Personas', stepExpenses: 'Gastos', stepResult: 'Resultado',
+      currencyAria: 'Cambiar moneda', themeAria: 'Cambiar tema',
+      peopleTitle: '¿Cuántas personas son?',
+      peopleSubtitle: 'Agrega a todos los que participaron en la salida.',
+      personPlaceholder: (i) => `Nombre de la persona ${i}`,
+      removePersonAria: 'Eliminar persona',
+      addPerson: '+ Añadir persona',
+      continueBtn: 'Continuar',
+      errNeed2: 'Necesitas al menos 2 personas para dividir gastos.',
+      errAllNamed: 'Ponle nombre a todas las personas (o elimina las vacías).',
+      addExpense: '+ Añadir gasto',
+      saveExpense: 'Guardar gasto',
+      back: 'Atrás',
+      calculate: 'Calcular',
+      noName: 'Sin nombre',
+      expenseLabel: (i) => `Gasto ${i}`,
+      minimizeExpenseAria: 'Minimizar gasto',
+      removeExpenseAria: 'Eliminar gasto',
+      removeExpense: 'Eliminar',
+      expenseNamePlaceholder: '(ej. Carne, Cerveza...)',
+      totalAmountLabel: (code) => `Monto total (${code})`,
+      whoPaid: '¿Quién pagó?',
+      whoPaidHint: '(marca a todos los que pusieron dinero)',
+      all: 'Todos',
+      splitEqual: 'Dividir en partes iguales',
+      missingAssign: (v) => `Falta asignar ${v}`,
+      missingAssignShort: (v) => `Faltan ${v}`,
+      leftover: (v) => `Sobran ${v}`,
+      whoSplits: '¿Entre quiénes se reparte?',
+      whoSplitsHint: '(se divide en partes iguales entre los marcados)',
+      errAllExpenseNames: 'Ponle nombre a todos los gastos.',
+      errAmount: (name) => `El gasto "${name}" necesita un monto válido mayor a 0.`,
+      errWhoPaid: (name) => `Falta indicar quién pagó "${name}".`,
+      errSum: (name, total) => `Lo que puso cada quien en "${name}" debe sumar el total (${total}). Deja vacío el monto de una persona para que lo calculemos por ti, o usa "Dividir en partes iguales".`,
+      errParticipants: (name) => `El gasto "${name}" necesita al menos una persona en "¿Entre quiénes se reparte?".`,
+      resultTitle: 'Resultado',
+      totalLabel: (v) => `Total: ${v}`,
+      resultSubtitle: 'Así quedan las cuentas, con el menor número de pagos posible.',
+      paysTo: 'le paga a',
+      allEvenPlain: '¡Todos están a mano! No hay pagos pendientes.',
+      viewBalance: 'Ver balance detallado por persona',
+      isOwed: (v) => `le deben ${v}`,
+      owes: (v) => `debe ${v}`,
+      isEven: 'está a mano',
+      shareResult: '📤 Compartir resultado',
+      editExpenses: 'Editar gastos',
+      startOver: 'Empezar de nuevo',
+      confirmRestart: '¿Seguro que quieres borrar todo y empezar de nuevo?',
+      shareTotal: (v) => `*Resultado Total:* ${v}`,
+      calculatedWith: '*Calculado con:* https://de-a-cuanto.vercel.app/',
+      toastCopied: 'Resultado copiado — pégalo donde quieras 📋',
+      toastCopyFail: 'No se pudo copiar automáticamente 😕',
+      resumeTitle: '¿Seguimos donde quedaste?',
+      resumeBody: (n) => `Este navegador tiene guardado un cálculo con ${n} persona${n === 1 ? '' : 's'} de una visita anterior.`,
+      startNew: 'Empezar nuevo',
+      errorTitle: 'Algo no cargó bien 😕',
+      errorBody: 'Puede que tu progreso guardado haya quedado en un formato viejo. Empecemos de nuevo para arreglarlo.',
+    },
+    en: {
+      tagline: "Clear accounts, long friendships",
+      stepPeople: 'People', stepExpenses: 'Expenses', stepResult: 'Result',
+      currencyAria: 'Change currency', themeAria: 'Change theme',
+      peopleTitle: 'How many people are there?',
+      peopleSubtitle: 'Add everyone who took part in the outing.',
+      personPlaceholder: (i) => `Person ${i}'s name`,
+      removePersonAria: 'Remove person',
+      addPerson: '+ Add person',
+      continueBtn: 'Continue',
+      errNeed2: 'You need at least 2 people to split expenses.',
+      errAllNamed: 'Give everyone a name (or remove the empty ones).',
+      addExpense: '+ Add expense',
+      saveExpense: 'Save expense',
+      back: 'Back',
+      calculate: 'Calculate',
+      noName: 'No name',
+      expenseLabel: (i) => `Expense ${i}`,
+      minimizeExpenseAria: 'Minimize expense',
+      removeExpenseAria: 'Remove expense',
+      removeExpense: 'Remove',
+      expenseNamePlaceholder: '(e.g. Food, Drinks...)',
+      totalAmountLabel: (code) => `Total amount (${code})`,
+      whoPaid: 'Who paid?',
+      whoPaidHint: '(check everyone who put in money)',
+      all: 'All',
+      splitEqual: 'Split equally',
+      missingAssign: (v) => `Still need to assign ${v}`,
+      missingAssignShort: (v) => `Still missing ${v}`,
+      leftover: (v) => `${v} left over`,
+      whoSplits: "Who's splitting it?",
+      whoSplitsHint: '(split equally among those checked)',
+      errAllExpenseNames: 'Give every expense a name.',
+      errAmount: (name) => `The expense "${name}" needs a valid amount greater than 0.`,
+      errWhoPaid: (name) => `You need to say who paid for "${name}".`,
+      errSum: (name, total) => `What each person put toward "${name}" must add up to the total (${total}). Leave one person's amount blank so we calculate it for you, or use "Split equally".`,
+      errParticipants: (name) => `The expense "${name}" needs at least one person in "Who's splitting it?".`,
+      resultTitle: 'Result',
+      totalLabel: (v) => `Total: ${v}`,
+      resultSubtitle: "Here's how the accounts settle, with the fewest payments possible.",
+      paysTo: 'pays',
+      allEvenPlain: "Everyone's even! No pending payments.",
+      viewBalance: 'View detailed balance per person',
+      isOwed: (v) => `is owed ${v}`,
+      owes: (v) => `owes ${v}`,
+      isEven: 'is even',
+      shareResult: '📤 Share result',
+      editExpenses: 'Edit expenses',
+      startOver: 'Start over',
+      confirmRestart: 'Are you sure you want to clear everything and start over?',
+      shareTotal: (v) => `*Total result:* ${v}`,
+      calculatedWith: '*Calculated with:* https://de-a-cuanto.vercel.app/',
+      toastCopied: 'Result copied — paste it wherever you like 📋',
+      toastCopyFail: "Couldn't copy automatically 😕",
+      resumeTitle: 'Pick up where you left off?',
+      resumeBody: (n) => `This browser has a saved calculation with ${n} ${n === 1 ? 'person' : 'people'} from a previous visit.`,
+      startNew: 'Start new',
+      errorTitle: "Something didn't load right 😕",
+      errorBody: "Your saved progress may be in an old format. Let's start fresh to fix it.",
+    },
+    ja: {
+      tagline: '帳簿が明確なら、友情は長続きする',
+      stepPeople: '参加者', stepExpenses: '支出', stepResult: '結果',
+      currencyAria: '通貨を変更', themeAria: 'テーマを切り替え',
+      peopleTitle: '何人いますか？',
+      peopleSubtitle: '外出に参加した全員を追加してください。',
+      personPlaceholder: (i) => `参加者${i}の名前`,
+      removePersonAria: '参加者を削除',
+      addPerson: '+ 参加者を追加',
+      continueBtn: '続ける',
+      errNeed2: '割り勘するには少なくとも2人必要です。',
+      errAllNamed: '全員に名前を付けてください（空欄は削除してください）。',
+      addExpense: '+ 支出を追加',
+      saveExpense: '支出を保存',
+      back: '戻る',
+      calculate: '計算する',
+      noName: '名前なし',
+      expenseLabel: (i) => `支出 ${i}`,
+      minimizeExpenseAria: '支出を最小化',
+      removeExpenseAria: '支出を削除',
+      removeExpense: '削除',
+      expenseNamePlaceholder: '（例：食事、飲み物...）',
+      totalAmountLabel: (code) => `合計金額（${code}）`,
+      whoPaid: '誰が払いましたか？',
+      whoPaidHint: '（お金を出した人全員にチェック）',
+      all: '全員',
+      splitEqual: '均等に分ける',
+      missingAssign: (v) => `あと ${v} 割り当てる必要があります`,
+      missingAssignShort: (v) => `あと ${v} 足りません`,
+      leftover: (v) => `${v} 余っています`,
+      whoSplits: '誰で割りますか？',
+      whoSplitsHint: '（チェックした人で均等に分けます）',
+      errAllExpenseNames: 'すべての支出に名前を付けてください。',
+      errAmount: (name) => `「${name}」には0より大きい有効な金額が必要です。`,
+      errWhoPaid: (name) => `「${name}」を誰が払ったか指定してください。`,
+      errSum: (name, total) => `「${name}」で各自が出した金額の合計は、総額（${total}）と一致する必要があります。誰か一人の金額を空欄にすれば自動計算されます。または「均等に分ける」を使ってください。`,
+      errParticipants: (name) => `「${name}」には「誰で割りますか？」で少なくとも1人選ぶ必要があります。`,
+      resultTitle: '結果',
+      totalLabel: (v) => `合計：${v}`,
+      resultSubtitle: '最小限の支払い回数で精算すると、こうなります。',
+      paysTo: '→',
+      allEvenPlain: '全員精算済みです！支払いはありません。',
+      viewBalance: '個人別の詳細な残高を見る',
+      isOwed: (v) => `${v} をもらえます`,
+      owes: (v) => `${v} を払う必要があります`,
+      isEven: '精算済み',
+      shareResult: '📤 結果を共有',
+      editExpenses: '支出を編集',
+      startOver: '最初からやり直す',
+      confirmRestart: '本当にすべて削除して最初からやり直しますか？',
+      shareTotal: (v) => `*合計金額：* ${v}`,
+      calculatedWith: '*計算ツール：* https://de-a-cuanto.vercel.app/',
+      toastCopied: '結果をコピーしました — 好きな場所に貼り付けてください 📋',
+      toastCopyFail: '自動コピーできませんでした 😕',
+      resumeTitle: '前回の続きから始めますか？',
+      resumeBody: (n) => `このブラウザには、前回の${n}人分の計算が保存されています。`,
+      startNew: '新しく始める',
+      errorTitle: 'うまく読み込めませんでした 😕',
+      errorBody: '保存されたデータが古い形式かもしれません。修正するために最初からやり直しましょう。',
+    },
+    pt: {
+      tagline: 'Contas claras, amizades longas',
+      stepPeople: 'Pessoas', stepExpenses: 'Despesas', stepResult: 'Resultado',
+      currencyAria: 'Mudar moeda', themeAria: 'Mudar tema',
+      peopleTitle: 'Quantas pessoas são?',
+      peopleSubtitle: 'Adicione todos que participaram da saída.',
+      personPlaceholder: (i) => `Nome da pessoa ${i}`,
+      removePersonAria: 'Remover pessoa',
+      addPerson: '+ Adicionar pessoa',
+      continueBtn: 'Continuar',
+      errNeed2: 'Você precisa de pelo menos 2 pessoas para dividir despesas.',
+      errAllNamed: 'Dê um nome a todas as pessoas (ou remova as vazias).',
+      addExpense: '+ Adicionar despesa',
+      saveExpense: 'Salvar despesa',
+      back: 'Voltar',
+      calculate: 'Calcular',
+      noName: 'Sem nome',
+      expenseLabel: (i) => `Despesa ${i}`,
+      minimizeExpenseAria: 'Minimizar despesa',
+      removeExpenseAria: 'Remover despesa',
+      removeExpense: 'Remover',
+      expenseNamePlaceholder: '(ex. Comida, Bebidas...)',
+      totalAmountLabel: (code) => `Valor total (${code})`,
+      whoPaid: 'Quem pagou?',
+      whoPaidHint: '(marque todos que colocaram dinheiro)',
+      all: 'Todos',
+      splitEqual: 'Dividir em partes iguais',
+      missingAssign: (v) => `Falta atribuir ${v}`,
+      missingAssignShort: (v) => `Ainda falta ${v}`,
+      leftover: (v) => `Sobrou ${v}`,
+      whoSplits: 'Entre quem se divide?',
+      whoSplitsHint: '(divide-se em partes iguais entre os marcados)',
+      errAllExpenseNames: 'Dê um nome a todas as despesas.',
+      errAmount: (name) => `A despesa "${name}" precisa de um valor válido maior que 0.`,
+      errWhoPaid: (name) => `Falta indicar quem pagou "${name}".`,
+      errSum: (name, total) => `O que cada um colocou em "${name}" deve somar o total (${total}). Deixe o valor de uma pessoa em branco para calcularmos por você, ou use "Dividir em partes iguais".`,
+      errParticipants: (name) => `A despesa "${name}" precisa de pelo menos uma pessoa em "Entre quem se divide?".`,
+      resultTitle: 'Resultado',
+      totalLabel: (v) => `Total: ${v}`,
+      resultSubtitle: 'Assim ficam as contas, com o menor número possível de pagamentos.',
+      paysTo: 'paga para',
+      allEvenPlain: 'Está todo mundo quite! Não há pagamentos pendentes.',
+      viewBalance: 'Ver saldo detalhado por pessoa',
+      isOwed: (v) => `deve receber ${v}`,
+      owes: (v) => `deve ${v}`,
+      isEven: 'está quite',
+      shareResult: '📤 Compartilhar resultado',
+      editExpenses: 'Editar despesas',
+      startOver: 'Começar de novo',
+      confirmRestart: 'Tem certeza de que quer apagar tudo e começar de novo?',
+      shareTotal: (v) => `*Resultado total:* ${v}`,
+      calculatedWith: '*Calculado com:* https://de-a-cuanto.vercel.app/',
+      toastCopied: 'Resultado copiado — cole onde quiser 📋',
+      toastCopyFail: 'Não foi possível copiar automaticamente 😕',
+      resumeTitle: 'Continuar de onde parou?',
+      resumeBody: (n) => `Este navegador tem salvo um cálculo com ${n} pessoa${n === 1 ? '' : 's'} de uma visita anterior.`,
+      startNew: 'Começar novo',
+      errorTitle: 'Algo não carregou direito 😕',
+      errorBody: 'Seu progresso salvo pode estar em um formato antigo. Vamos começar de novo para corrigir isso.',
+    },
+  };
+  function t(key, ...args) {
+    const dict = I18N[lang()] || I18N.es;
+    const val = dict[key] !== undefined ? dict[key] : I18N.es[key];
+    return typeof val === 'function' ? val(...args) : val;
+  }
+  // Textos fuera del ciclo de render() normal (encabezado fijo, aria-labels
+  // de los botones flotantes, atributo lang del documento) — se refrescan
+  // aparte cada vez que cambia el idioma.
+  function applyStaticTexts() {
+    document.documentElement.lang = lang();
+    const tagline = document.getElementById('tagline');
+    if (tagline) tagline.textContent = t('tagline');
+    const currencyBtn = document.getElementById('currency-toggle');
+    if (currencyBtn) currencyBtn.setAttribute('aria-label', t('currencyAria'));
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) themeBtn.setAttribute('aria-label', t('themeAria'));
+  }
+  applyStaticTexts();
 
   /* ---------------- Floating emojis ---------------- */
   const EMOJIS = ['🤑', '🤔', '😢', '💴', '💵', '💶', '💷'];
@@ -423,7 +695,7 @@
 
   /* ---------------- Progress dots ---------------- */
   function renderProgress() {
-    const labels = ['Personas', 'Gastos', 'Resultado'];
+    const labels = [t('stepPeople'), t('stepExpenses'), t('stepResult')];
     const el = document.getElementById('progress');
     el.innerHTML = labels.map((label, i) => {
       const active = i === state.step;
@@ -463,19 +735,19 @@
     const rows = state.people.map((p, i) => `
       <div class="flex items-center gap-2">
         <span class="w-7 h-7 shrink-0 rounded-full bg-brand-light-primary/10 dark:bg-brand-dark-primary/15 text-brand-light-primary dark:text-brand-dark-primary grid place-items-center text-xs font-bold">${i + 1}</span>
-        <input data-person-id="${p.id}" type="text" maxlength="16" value="${escapeHtml(p.name)}" placeholder="Persona ${i + 1}"
+        <input data-person-id="${p.id}" type="text" maxlength="16" value="${escapeHtml(p.name)}" placeholder="${t('personPlaceholder', i + 1)}"
           class="person-input flex-1 min-w-0 rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
-        <button data-remove-person="${p.id}" class="w-10 h-10 shrink-0 rounded-full grid place-items-center border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext text-base font-bold hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-300 dark:hover:border-rose-900 active:scale-95 transition-colors" aria-label="Eliminar persona">✕</button>
+        <button data-remove-person="${p.id}" class="w-10 h-10 shrink-0 rounded-full grid place-items-center border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext text-base font-bold hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-300 dark:hover:border-rose-900 active:scale-95 transition-colors" aria-label="${t('removePersonAria')}">✕</button>
       </div>
     `).join('');
 
     container.innerHTML = card(`
-      <h2 class="text-lg font-bold mb-1">¿Cuántas personas son?</h2>
-      <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">Agrega a todos los que participaron en la salida.</p>
+      <h2 class="text-lg font-bold mb-1">${t('peopleTitle')}</h2>
+      <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">${t('peopleSubtitle')}</p>
       <div id="people-list" class="space-y-2.5 mb-3">${rows}</div>
-      <button id="add-person" class="w-full rounded-xl border border-dashed border-brand-light-border dark:border-brand-dark-border text-sm font-medium text-brand-light-subtext dark:text-brand-dark-subtext py-2.5 hover:border-brand-light-primary dark:hover:border-brand-dark-primary hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors mb-4">+ Añadir persona</button>
+      <button id="add-person" class="w-full rounded-xl border border-dashed border-brand-light-border dark:border-brand-dark-border text-sm font-medium text-brand-light-subtext dark:text-brand-dark-subtext py-2.5 hover:border-brand-light-primary dark:hover:border-brand-dark-primary hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors mb-4">${t('addPerson')}</button>
       <div id="people-error" class="hidden text-sm text-rose-500 mb-3"></div>
-      ${btnPrimary('Continuar', 'people-next')}
+      ${btnPrimary(t('continueBtn'), 'people-next')}
     `);
 
     document.getElementById('add-person').addEventListener('click', () => {
@@ -538,12 +810,12 @@
       const errorEl = document.getElementById('people-error');
       const named = state.people.filter(p => p.name.trim().length > 0);
       if (state.people.length < 2) {
-        errorEl.textContent = 'Necesitas al menos 2 personas para dividir gastos.';
+        errorEl.textContent = t('errNeed2');
         errorEl.classList.remove('hidden');
         return;
       }
       if (named.length !== state.people.length) {
-        errorEl.textContent = 'Ponle nombre a todas las personas (o elimina las vacías).';
+        errorEl.textContent = t('errAllNamed');
         errorEl.classList.remove('hidden');
         return;
       }
@@ -581,11 +853,11 @@
       <div class="space-y-4">
         ${cards}
       </div>
-      ${!hasExpanded ? `<button id="expense-action-btn" class="w-full mt-4 rounded-xl border border-dashed border-brand-light-border dark:border-brand-dark-border text-sm font-medium text-brand-light-subtext dark:text-brand-dark-subtext py-2.5 hover:border-brand-light-primary dark:hover:border-brand-dark-primary hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors">+ Añadir gasto</button>` : ''}
+      ${!hasExpanded ? `<button id="expense-action-btn" class="w-full mt-4 rounded-xl border border-dashed border-brand-light-border dark:border-brand-dark-border text-sm font-medium text-brand-light-subtext dark:text-brand-dark-subtext py-2.5 hover:border-brand-light-primary dark:hover:border-brand-dark-primary hover:text-brand-light-primary dark:hover:text-brand-dark-primary transition-colors">${t('addExpense')}</button>` : ''}
       <div id="expenses-error" class="hidden text-sm text-rose-500 mt-3"></div>
       <div class="flex gap-2 mt-5">
-        <button id="expenses-back" class="w-1/3 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Atrás</button>
-        <div class="flex-1">${btnPrimary('Calcular', 'expenses-next')}</div>
+        <button id="expenses-back" class="w-1/3 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">${t('back')}</button>
+        <div class="flex-1">${btnPrimary(t('calculate'), 'expenses-next')}</div>
       </div>
     `;
 
@@ -631,11 +903,11 @@
     if (collapsedExpenseIds.has(exp.id)) {
       const nameDisplay = exp.name
         ? escapeHtml(exp.name)
-        : '<span class="opacity-60 font-normal">Sin nombre</span>';
+        : `<span class="opacity-60 font-normal">${t('noName')}</span>`;
       return `
         <button type="button" data-expand-expense="${exp.id}" data-expense-card="${exp.id}" class="step-enter w-full text-left rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-4 shadow-sm flex items-center justify-between gap-3 hover:border-brand-light-primary dark:hover:border-brand-dark-primary transition-colors">
           <div class="flex items-center gap-2 min-w-0">
-            <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext shrink-0">Gasto ${idx + 1}</span>
+            <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext shrink-0">${t('expenseLabel', idx + 1)}</span>
             <span class="text-sm font-semibold truncate">${nameDisplay}</span>
           </div>
           <div class="flex items-center gap-2 shrink-0">
@@ -670,9 +942,9 @@
         <div class="mt-2 space-y-1.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] p-2.5">
           ${rows}
           <div class="flex items-center justify-between pt-1">
-            <button data-split-equal="${exp.id}" class="text-sm font-semibold text-brand-light-primary dark:text-brand-dark-primary hover:underline">Dividir en partes iguales</button>
-            <span data-payer-diff="${exp.id}" class="text-sm font-medium ${Math.abs(diff) < 0.01 ? 'text-brand-light-primary dark:text-brand-dark-primary' : 'text-brand-light-subtext dark:text-brand-dark-subtext'}">
-              ${Math.abs(diff) < 0.01 ? '✓ Cuadra con el total' : (diff > 0 ? `Falta asignar ${fmt(diff)}` : `Sobran ${fmt(-diff)}`)}
+            <button data-split-equal="${exp.id}" class="text-sm font-semibold text-brand-light-primary dark:text-brand-dark-primary hover:underline">${t('splitEqual')}</button>
+            <span data-payer-diff="${exp.id}" class="text-sm font-medium ${Math.abs(diff) < 0.01 ? 'text-brand-light-subtext dark:text-brand-dark-subtext' : 'text-rose-500'}">
+              ${Math.abs(diff) < 0.01 ? '' : (diff > 0 ? t('missingAssign', fmt(diff)) : t('leftover', fmt(-diff)))}
             </span>
           </div>
         </div>`;
@@ -691,34 +963,34 @@
 
     return `
       <div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm relative" data-expense-card="${exp.id}">
-        <div class="flex items-center justify-between mb-3 -m-1 p-1 rounded-xl ${state.expenses.length > 1 ? 'cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors' : ''}" ${state.expenses.length > 1 ? `data-collapse-expense="${exp.id}" aria-label="Minimizar gasto"` : ''}>
-          <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext">Gasto ${idx + 1}</span>
-          ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="Eliminar gasto">Eliminar</button>` : ''}
+        <div class="flex items-center justify-between mb-3 -m-1 p-1 rounded-xl ${state.expenses.length > 1 ? 'cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors' : ''}" ${state.expenses.length > 1 ? `data-collapse-expense="${exp.id}" aria-label="${t('minimizeExpenseAria')}"` : ''}>
+          <span class="text-sm font-bold uppercase tracking-wide text-brand-light-subtext dark:text-brand-dark-subtext">${t('expenseLabel', idx + 1)}</span>
+          ${state.expenses.length > 1 ? `<button data-remove-expense="${exp.id}" class="text-brand-light-subtext dark:text-brand-dark-subtext hover:text-rose-500 transition-colors text-sm" aria-label="${t('removeExpenseAria')}">${t('removeExpense')}</button>` : ''}
         </div>
         <div class="space-y-3">
-          <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="(ej. Carne, Cerveza...)"
+          <input data-expense-name="${exp.id}" type="text" maxlength="20" value="${escapeHtml(exp.name)}" placeholder="${t('expenseNamePlaceholder')}"
             class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
           <div>
-            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1">Monto total (${getCurrency().code})</label>
+            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1">${t('totalAmountLabel', getCurrency().code)}</label>
             <input data-expense-amount="${exp.id}" type="number" inputmode="decimal" min="0" step="0.01" value="${exp.amount}" placeholder="0"
               class="w-full rounded-xl border border-brand-light-border dark:border-brand-dark-border bg-transparent px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-light-primary/40 dark:focus:ring-brand-dark-primary/40" />
           </div>
           <div>
-            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">¿Quién pagó? <span class="font-normal opacity-70">(marca a todos los que pusieron dinero)</span></label>
+            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">${t('whoPaid')} <span class="font-normal opacity-70">${t('whoPaidHint')}</span></label>
             <div class="flex flex-wrap gap-1.5">
               ${payerChips}
-              <button data-toggle-all-payers="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">Todos</button>
+              <button data-toggle-all-payers="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">${t('all')}</button>
             </div>
             ${payerAmountsHtml}
           </div>
           <div>
-            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">¿Entre quiénes se reparte? <span class="font-normal opacity-70">(se divide en partes iguales entre los marcados)</span></label>
+            <label class="block text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-1.5">${t('whoSplits')} <span class="font-normal opacity-70">${t('whoSplitsHint')}</span></label>
             <div class="flex flex-wrap gap-1.5">
               ${participantChips}
-              <button data-toggle-all-participants="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">Todos</button>
+              <button data-toggle-all-participants="${exp.id}" class="cursor-pointer select-none px-3 py-1.5 rounded-full text-sm font-medium border border-dashed border-brand-light-primary/50 dark:border-brand-dark-primary/50 text-brand-light-primary dark:text-brand-dark-primary hover:bg-brand-light-primary/10 dark:hover:bg-brand-dark-primary/15 transition-colors">${t('all')}</button>
             </div>
           </div>
-          <button data-save-expense="${exp.id}" class="w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-2.5 text-sm transition-colors active:scale-[0.98]">Guardar gasto</button>
+          <button data-save-expense="${exp.id}" class="w-full rounded-xl bg-brand-light-primary dark:bg-brand-dark-primary hover:bg-brand-light-primaryHover dark:hover:bg-brand-dark-primaryHover text-white font-semibold py-2.5 text-sm transition-colors active:scale-[0.98]">${t('saveExpense')}</button>
         </div>
       </div>
     `;
@@ -977,9 +1249,7 @@
     const sum = exp.payers.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
     const diff = Math.round((total - sum) * 100) / 100;
     const ok = Math.abs(diff) < 0.01;
-    span.textContent = ok ? '✓ Cuadra con el total' : (diff > 0 ? `Faltan ${fmt(diff)}` : `Sobran ${fmt(-diff)}`);
-    span.classList.toggle('text-brand-light-primary', ok);
-    span.classList.toggle('dark:text-brand-dark-primary', ok);
+    span.textContent = ok ? '' : (diff > 0 ? t('missingAssignShort', fmt(diff)) : t('leftover', fmt(-diff)));
     span.classList.toggle('text-rose-500', !ok);
   }
 
@@ -989,20 +1259,20 @@
   function validateExpense(exp, errorEl) {
     exp.name = sentenceCase(exp.name);
     const amt = parseFloat(exp.amount);
-    if (!exp.name) { errorEl.textContent = 'Ponle nombre a todos los gastos.'; errorEl.classList.remove('hidden'); return false; }
-    if (!amt || amt <= 0) { errorEl.textContent = `El gasto "${exp.name}" necesita un monto válido mayor a 0.`; errorEl.classList.remove('hidden'); return false; }
-    if (!exp.payers || exp.payers.length === 0) { errorEl.textContent = `Falta indicar quién pagó "${exp.name}".`; errorEl.classList.remove('hidden'); return false; }
+    if (!exp.name) { errorEl.textContent = t('errAllExpenseNames'); errorEl.classList.remove('hidden'); return false; }
+    if (!amt || amt <= 0) { errorEl.textContent = t('errAmount', exp.name); errorEl.classList.remove('hidden'); return false; }
+    if (!exp.payers || exp.payers.length === 0) { errorEl.textContent = t('errWhoPaid', exp.name); errorEl.classList.remove('hidden'); return false; }
     if (exp.payers.length === 1) {
       exp.payers[0].amount = exp.amount;
     } else {
       const sum = exp.payers.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
       if (Math.abs(sum - amt) > 0.01) {
-        errorEl.textContent = `Lo que puso cada quien en "${exp.name}" debe sumar el total (${fmt(amt)}). Deja vacío el monto de una persona para que lo calculemos por ti, o usa "Dividir en partes iguales".`;
+        errorEl.textContent = t('errSum', exp.name, fmt(amt));
         errorEl.classList.remove('hidden');
         return false;
       }
     }
-    if (!exp.participants || exp.participants.length === 0) { errorEl.textContent = `El gasto "${exp.name}" necesita al menos una persona en "¿Entre quiénes se reparte?".`; errorEl.classList.remove('hidden'); return false; }
+    if (!exp.participants || exp.participants.length === 0) { errorEl.textContent = t('errParticipants', exp.name); errorEl.classList.remove('hidden'); return false; }
     return true;
   }
 
@@ -1065,15 +1335,15 @@
 
   /* ---------------- Compartir resultado ---------------- */
   function buildShareText(total, transactions) {
-    const lines = ['🤑 *¿De A Cuánto?*', `*Resultado Total:* ${fmt(total)}`, ''];
+    const lines = ['🤑 *¿De A Cuánto?*', t('shareTotal', fmt(total)), ''];
     if (transactions.length > 0) {
-      transactions.forEach(t => {
-        lines.push(`💸 *${personName(t.from)}* le paga a *${personName(t.to)}*: ${fmt(t.amount)}`);
+      transactions.forEach(tx => {
+        lines.push(`💸 *${personName(tx.from)}* ${t('paysTo')} *${personName(tx.to)}*: ${fmt(tx.amount)}`);
       });
     } else {
-      lines.push('🎉 *¡Todos están a mano! No hay pagos pendientes.*');
+      lines.push(`🎉 *${t('allEvenPlain')}*`);
     }
-    lines.push('', '*Calculado con:* https://de-a-cuanto.vercel.app/');
+    lines.push('', t('calculatedWith'));
     return lines.join('\n');
   }
   let toastTimer = null;
@@ -1101,7 +1371,7 @@
       const isPos = b > 0.005;
       const isNeg = b < -0.005;
       const color = isPos ? 'text-brand-light-primary dark:text-brand-dark-primary' : isNeg ? 'text-rose-500' : 'text-brand-light-subtext dark:text-brand-dark-subtext';
-      const label = isPos ? `le deben ${fmt(b)}` : isNeg ? `debe ${fmt(-b)}` : 'está a mano';
+      const label = isPos ? t('isOwed', fmt(b)) : isNeg ? t('owes', fmt(-b)) : t('isEven');
       return `<div class="flex items-center justify-between py-2 border-b border-brand-light-border dark:border-brand-dark-border last:border-0">
         <span class="font-medium text-sm">${escapeHtml(p.name)}</span>
         <span class="text-sm font-semibold ${color}">${label}</span>
@@ -1109,38 +1379,38 @@
     }).join('');
 
     const settlementRows = transactions.length > 0
-      ? transactions.map(t => `
+      ? transactions.map(tx => `
         <div class="step-enter flex items-center gap-3 rounded-2xl border border-brand-light-border dark:border-brand-dark-border p-3.5">
           <span class="text-xl">💸</span>
           <div class="flex-1 min-w-0 text-sm">
-            <span class="font-semibold">${escapeHtml(personName(t.from))}</span>
-            <span class="text-brand-light-subtext dark:text-brand-dark-subtext"> le paga a </span>
-            <span class="font-semibold">${escapeHtml(personName(t.to))}</span>
+            <span class="font-semibold">${escapeHtml(personName(tx.from))}</span>
+            <span class="text-brand-light-subtext dark:text-brand-dark-subtext"> ${t('paysTo')} </span>
+            <span class="font-semibold">${escapeHtml(personName(tx.to))}</span>
           </div>
-          <span class="font-bold text-brand-light-primary dark:text-brand-dark-primary">${fmt(t.amount)}</span>
+          <span class="font-bold text-brand-light-primary dark:text-brand-dark-primary">${fmt(tx.amount)}</span>
         </div>
       `).join('')
-      : `<div class="text-center py-6 text-sm text-brand-light-subtext dark:text-brand-dark-subtext">🎉 ¡Todos están a mano! No hay pagos pendientes.</div>`;
+      : `<div class="text-center py-6 text-sm text-brand-light-subtext dark:text-brand-dark-subtext">🎉 ${t('allEvenPlain')}</div>`;
 
     container.innerHTML = `
       <div class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm mb-4">
         <div class="flex items-center justify-between mb-1">
-          <h2 class="text-lg font-bold">Resultado</h2>
-          <span class="text-sm font-semibold px-2.5 py-1 rounded-full bg-brand-light-primary/10 dark:bg-brand-dark-primary/15 text-brand-light-primary dark:text-brand-dark-primary">Total: ${fmt(total)}</span>
+          <h2 class="text-lg font-bold">${t('resultTitle')}</h2>
+          <span class="text-sm font-semibold px-2.5 py-1 rounded-full bg-brand-light-primary/10 dark:bg-brand-dark-primary/15 text-brand-light-primary dark:text-brand-dark-primary">${t('totalLabel', fmt(total))}</span>
         </div>
-        <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-3">Así quedan las cuentas, con el menor número de pagos posible.</p>
+        <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-3">${t('resultSubtitle')}</p>
         <div class="space-y-2.5 mb-1">${settlementRows}</div>
       </div>
 
       <details class="step-enter rounded-3xl bg-brand-light-card dark:bg-brand-dark-card border border-brand-light-border dark:border-brand-dark-border p-5 shadow-sm mb-4">
-        <summary class="cursor-pointer text-sm font-semibold text-brand-light-subtext dark:text-brand-dark-subtext">Ver balance detallado por persona</summary>
+        <summary class="cursor-pointer text-sm font-semibold text-brand-light-subtext dark:text-brand-dark-subtext">${t('viewBalance')}</summary>
         <div class="mt-3">${balanceRows}</div>
       </details>
 
-      <div class="mb-2">${btnPrimary('📤 Compartir resultado', 'results-share', null, 'shine')}</div>
+      <div class="mb-2">${btnPrimary(t('shareResult'), 'results-share', null, 'shine')}</div>
       <div class="flex gap-2">
-        <button id="results-back" class="w-1/2 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Editar gastos</button>
-        <button id="results-restart" class="btn-shake w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-500/5 text-rose-500 font-semibold py-3 hover:bg-rose-500/10 active:scale-[0.98] transition-colors">Empezar de nuevo</button>
+        <button id="results-back" class="w-1/2 rounded-xl border border-brand-light-border dark:border-brand-dark-border text-brand-light-subtext dark:text-brand-dark-subtext font-semibold py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">${t('editExpenses')}</button>
+        <button id="results-restart" class="btn-shake w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-500/5 text-rose-500 font-semibold py-3 hover:bg-rose-500/10 active:scale-[0.98] transition-colors">${t('startOver')}</button>
       </div>
     `;
 
@@ -1160,14 +1430,14 @@
       }
       try {
         await navigator.clipboard.writeText(text);
-        showToast('Resultado copiado — pégalo donde quieras 📋');
+        showToast(t('toastCopied'));
       } catch (err) {
-        showToast('No se pudo copiar automáticamente 😕');
+        showToast(t('toastCopyFail'));
       }
     });
     document.getElementById('results-back').addEventListener('click', () => { state.step = 1; saveState(); render(true); });
     document.getElementById('results-restart').addEventListener('click', () => {
-      if (confirm('¿Seguro que quieres borrar todo y empezar de nuevo?')) {
+      if (confirm(t('confirmRestart'))) {
         state = defaultState();
         saveState();
         render(true);
@@ -1201,9 +1471,9 @@
       const container = document.getElementById('step-content');
       if (container) {
         container.innerHTML = card(`
-          <h2 class="text-lg font-bold mb-1">Algo no cargó bien 😕</h2>
-          <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">Puede que tu progreso guardado haya quedado en un formato viejo. Empecemos de nuevo para arreglarlo.</p>
-          ${btnPrimary('Empezar de nuevo', 'render-error-restart')}
+          <h2 class="text-lg font-bold mb-1">${t('errorTitle')}</h2>
+          <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">${t('errorBody')}</p>
+          ${btnPrimary(t('startOver'), 'render-error-restart')}
         `);
         const btn = document.getElementById('render-error-restart');
         if (btn) btn.addEventListener('click', () => {
@@ -1227,11 +1497,11 @@
     const container = document.getElementById('step-content');
     const n = state.people.length;
     container.innerHTML = card(`
-      <h2 class="text-lg font-bold mb-1">¿Seguimos donde quedaste?</h2>
-      <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">Este navegador tiene guardado un cálculo con ${n} persona${n === 1 ? '' : 's'} de una visita anterior.</p>
+      <h2 class="text-lg font-bold mb-1">${t('resumeTitle')}</h2>
+      <p class="text-sm text-brand-light-subtext dark:text-brand-dark-subtext mb-4">${t('resumeBody', n)}</p>
       <div class="flex gap-2">
-        <button id="resume-new" class="w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-500/5 text-rose-500 font-semibold py-3 hover:bg-rose-500/10 active:scale-[0.98] transition-colors">Empezar nuevo</button>
-        <div class="w-1/2">${btnPrimary('Continuar', 'resume-continue')}</div>
+        <button id="resume-new" class="w-1/2 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-500/5 text-rose-500 font-semibold py-3 hover:bg-rose-500/10 active:scale-[0.98] transition-colors">${t('startNew')}</button>
+        <div class="w-1/2">${btnPrimary(t('continueBtn'), 'resume-continue')}</div>
       </div>
     `);
     document.getElementById('resume-new').addEventListener('click', () => {
